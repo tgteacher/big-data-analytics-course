@@ -1,0 +1,134 @@
+\documentclass[a4,11pt]{article}
+\usepackage{sectionbox}
+\usepackage{hyperref}
+\usepackage{graphicx}
+
+%\usepackage{upquote}
+\usepackage{listings}
+
+\setlength{\topmargin}{-2cm}
+\setlength{\textwidth}{16.5cm}
+\setlength{\textheight}{24cm}
+\setlength{\evensidemargin}{0cm}
+\setlength{\oddsidemargin}{0cm}
+
+\lstset{basicstyle=\ttfamily, keywordstyle=\color{blue}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  commentstyle=\color{magenta}\ttfamily,
+  morecomment=[l][\color{magenta}]{\#}}
+
+
+\newcommand{\postit}[1]{%
+  \noindent
+  \fcolorbox{red}{yellow}{%
+    \begin{minipage}{5cm}
+      #1
+    \end{minipage}
+   }
+}
+
+
+\title{\textsc{Big Data Analytics (SOEN 498/691)} \\ Laboratory sessions}
+
+\author{Tristan Glatard\\Department of Computer Science and Software Engineering\\Concordia University, Montreal\\\url{mailto:tristan.glatard@concordia.ca}}
+
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\part{Prerequisites}
+
+\section{Java}
+
+\postit{Java installation}
+
+Make sure that you are able to create and run a simple Java program
+before you start. The examples described in this tutorial can be done
+using a simple text editor such as \texttt{vim} or \texttt{emacs} and
+Linux command-line tools. Here is a simple Java program to help you
+start:\\
+\begin{sectionbox}{}
+  \begin{lstlisting}[language=Java]
+    public class Test{
+      public static void main(String[] args){
+        System.out.println(''Hello, World!'');
+      }
+    }
+\end{lstlisting}
+\end{sectionbox}
+It is compiled as follows:\\
+\begin{sectionbox}{}
+\begin{verbatim}
+  % javac Test.java
+\end{verbatim}
+\end{sectionbox}
+The compilation produces a \texttt{Test.class} file that contains the compiled class.
+The program is executed as follows:\\
+\begin{sectionbox}{}
+\begin{verbatim}
+  % java Test
+\end{verbatim}
+\end{sectionbox}
+\texttt{Test.class} must be located in the directory where \texttt{java} is
+executed, or in a directory listed in the \texttt{CLASSPATH}
+environment variable.
+
+However, for larger applications such as your project, it is
+recommended to use Integrated Development Environments (IDEs) tailored
+for Java, e.g., Eclipse or Netbeans.
+
+\section{Linux}
+
+Here is a list of Linux commands that are required to complete this
+tutorial. Make sure that you understand them before you proceed.
+\begin{itemize}
+  \item \texttt{man}:
+  \item \texttt{ls}:
+  \item \ldots
+\end{itemize}
+
+Here is also a list of environment variables that will have to be
+used:
+\begin{itemize}
+  \item \texttt{PATH}:
+  \item \texttt{CLASSPATH}: 
+\end{itemize}
+
+\part{Getting started with Hadoop}
+
+\section{Installation (standalone mode)}
+
+See \url{http://hadoop.apache.org/docs/r2.7.3/hadoop-project-dist/hadoop-common/SingleCluster.html#Standalone_Operation}.
+
+\section{First example}
+
+Adapt from \url{http://hadoop.apache.org/docs/r2.7.3/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html#Example:_WordCount_v1.0}.
+
+\section{Hadoop Streaming}
+
+\section{Installation (pseudo-distributed mode)}
+
+\section{HDFS}
+
+\section{YARN}
+
+\section{Second example}
+
+
+  \begin{sectionbox}{}
+   \begin{verbatim}
+rm * -Rf
+   \end{verbatim}
+  \end{sectionbox}
+
+
+\end{document}
+
+
