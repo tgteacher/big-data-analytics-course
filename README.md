@@ -19,5 +19,5 @@ A pdf is updated for every release of the document.
 
 # Latex installation
 
-* On Linux Fedora 24: `dnf install texlive-bin texlive-collection-fontsrecommended texlive-sectionbox`.
+* On Linux Fedora 24: `dnf install texlive-bin texlive-collection-fontsrecommended texlive-listings`.
 
