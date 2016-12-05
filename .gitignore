@@ -1,0 +1,10 @@
+*~
+*.class
+*.java
+*.aux
+*.log
+*.out
+labs.pdf
+*.toc
+*.txt
+*.jar
