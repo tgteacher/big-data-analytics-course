@@ -1,10 +1,19 @@
-\documentclass[a4,11pt]{article}
-\usepackage{sectionbox}
-\usepackage{hyperref}
+\documentclass[11pt]{article}
+\usepackage[colorlinks]{hyperref}
 \usepackage{graphicx}
-
-%\usepackage{upquote}
+\usepackage[dvipsnames]{xcolor}
 \usepackage{listings}
+
+% link colors
+\hypersetup{
+    colorlinks = true,
+    linkcolor=red,
+    citecolor=red,
+    urlcolor=blue,
+    linktocpage % so that page numbers are clickable in toc
+}
+
+\definecolor{mygray}{RGB}{235,235,235}
 
 \setlength{\topmargin}{-2cm}
 \setlength{\textwidth}{16.5cm}
@@ -17,7 +26,24 @@
   commentstyle=\color{magenta}\ttfamily,
   morecomment=[l][\color{magenta}]{\#}}
 
+\lstnewenvironment{cli}
+               {\footnotesize \lstset{columns=flexible,language=bash,backgroundcolor=\color{mygray}}}
+               {}
 
+\lstnewenvironment{xml}
+               {\footnotesize \lstset{columns=flexible,language=xml,backgroundcolor=\color{Salmon}}}
+               {}
+
+               
+\lstnewenvironment{bash}
+               {\footnotesize \lstset{columns=flexible,language=bash,backgroundcolor=\color{SkyBlue}}}
+               {}
+               
+\lstnewenvironment{java}
+               {\lstset{language=java,columns=flexible,backgroundcolor=\color{YellowGreen}}}
+               {}
+
+               
 \newcommand{\postit}[1]{%
   \noindent
   \fcolorbox{red}{yellow}{%
@@ -45,88 +71,424 @@
 
 \part{Prerequisites}
 
+\section{Notations}
+
+This is a command you are supposed to type in a Linux terminal.
+\begin{cli}
+  $ echo Welcome
+\end{cli}
+Don't type the \$ sign though as it is used to represent the Linux
+prompt.
+This command is split in two lines:
+\begin{cli}
+  $ echo Welcome to this tutorial,\
+    I hope you will enjoy it! 
+\end{cli}
+This is a piece of Java code:
+\begin{java}
+  int a=7;
+\end{java}
+This is a piece of bash script:
+\begin{bash}
+  #!/bin/bash
+  for i in 1 2 3
+  do
+    echo $i
+  done
+\end{bash}
+And this is a piece of XML file:
+\begin{xml}
+  <one>
+    <two>Hello</two>
+  </one>
+\end{xml}
+
 \section{Java}
 
-\postit{Java installation}
-
-Make sure that you are able to create and run a simple Java program
-before you start. The examples described in this tutorial can be done
-using a simple text editor such as \texttt{vim} or \texttt{emacs} and
-Linux command-line tools. Here is a simple Java program to help you
-start:\\
-\begin{sectionbox}{}
-  \begin{lstlisting}[language=Java]
-    public class Test{
-      public static void main(String[] args){
-        System.out.println(''Hello, World!'');
-      }
-    }
-\end{lstlisting}
-\end{sectionbox}
-It is compiled as follows:\\
-\begin{sectionbox}{}
-\begin{verbatim}
-  % javac Test.java
-\end{verbatim}
-\end{sectionbox}
+Java is the primary language used in Hadoop. Make sure that Java
+version 7 or higher is installed on your system. If it is not, follow
+the instructions from
+\href{http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html}{the
+  Oracle website} and check that the Java Virtual Machine (JVM) works properly with:
+\begin{cli}
+$ java -version
+\end{cli}
+Make sure that you are able to create and run a simple Java
+program. This tutorial can be done with a simple text editor such as
+\texttt{vim} or \texttt{emacs}, and Java command-line tools. For
+larger applications such as your project, it is recommended to use
+Integrated Development Environments (IDEs) tailored for Java, e.g.,
+\href{http://eclipse.org}{Eclipse} or
+\href{http://netbeans.org}{Netbeans}. Here is a simple Java program to
+help you start:
+\begin{java}
+public class Test{
+  public static void main(String[] args){
+    System.out.println(''Hello, World!'');
+  }
+}
+\end{java}
+It is compiled as follows:
+\begin{cli}
+$ javac Test.java
+\end{cli}
 The compilation produces a \texttt{Test.class} file that contains the compiled class.
-The program is executed as follows:\\
-\begin{sectionbox}{}
-\begin{verbatim}
-  % java Test
-\end{verbatim}
-\end{sectionbox}
+The program is executed as follows:
+\begin{cli}
+$ java Test
+\end{cli}
 \texttt{Test.class} must be located in the directory where \texttt{java} is
 executed, or in a directory listed in the \texttt{CLASSPATH}
 environment variable.
 
-However, for larger applications such as your project, it is
-recommended to use Integrated Development Environments (IDEs) tailored
-for Java, e.g., Eclipse or Netbeans.
-
 \section{Linux}
 
-Here is a list of Linux commands that are required to complete this
-tutorial. Make sure that you understand them before you proceed.
+We will use Linux. Here is a list of useful commands:
 \begin{itemize}
-  \item \texttt{man}:
-  \item \texttt{ls}:
-  \item \ldots
+  \item \texttt{man}: a command to get help on any command.
+  \item \texttt{ls}: lists directory content.
+  \item 
+\end{itemize}
+Here is also a list of useful environment variables:
+\begin{itemize}
+  \item \texttt{PATH}: tells the system which directories to search for executables.
+  \item \texttt{CLASSPATH}: tells the JVM where classes must be searched.
 \end{itemize}
 
-Here is also a list of environment variables that will have to be
-used:
-\begin{itemize}
-  \item \texttt{PATH}:
-  \item \texttt{CLASSPATH}: 
-\end{itemize}
+\postit{stdin, stdout, stderr}
+\postit{pipes}
+
+\newpage
 
 \part{Getting started with Hadoop}
 
+This part of the tutorial is adapted from the following sources:
+\begin{itemize}
+\item \href{http://hadoop.apache.org/docs/r2.7.3/index.html}{Apache Hadoop documentation}
+\item \href{http://hadoop.apache.org/docs/r2.7.3/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html}{MapReduce tutorial}
+\end{itemize}
+
 \section{Installation (standalone mode)}
 
-See \url{http://hadoop.apache.org/docs/r2.7.3/hadoop-project-dist/hadoop-common/SingleCluster.html#Standalone_Operation}.
+In this section you will install Hadoop on your workstation. First,
+download release 2.7.3 from one of the
+\href{http://www.apache.org/dyn/closer.cgi/hadoop/common/}{Apache
+  Download Mirrors} and unpack the distribution:
+\begin{cli}
+  $ wget http://apache.mirror.rafal.ca/hadoop/common/hadoop-2.7.3/hadoop-2.7.3.tar.gz
+  $ tar xf hadoop-2.7.3.tar.gz
+  $ export HADOOP=$PWD/hadoop-2.7.3
+\end{cli}
+Edit \texttt{etc/hadoop/hadoop-env.sh} and define the path to your java installation as follows:
+\begin{cli}
+  export JAVA\_HOME=/path/to/your/java/installation/
+\end{cli}
+Add the Hadoop executables to your PATH:
+\begin{cli}
+  $ export PATH=$PATH:${HADOOP}/bin:${HADOOP}/sbin
+\end{cli}
+Make sure Hadoop is installed properly:
+\begin{cli}
+  $ hadoop version
+\end{cli}
+Run a first example:
+\begin{cli}
+  $ mkdir input
+  # creates a test file containing integers from 1 to 1000
+  $ for i in `seq 1 1000`; do echo $i >> input/file.txt ; done 
+  $ hadoop jar ${HADOOP}/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.3.jar grep input output 1
+  $ cat output/*
+\end{cli}
+This program ``greps'' the test file for the string '1'.
 
-\section{First example}
+\section{First MapReduce program}
 
-Adapt from \url{http://hadoop.apache.org/docs/r2.7.3/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html#Example:_WordCount_v1.0}.
+As first MapReduce program, we will now write the classical WordCount example:
+\begin{java}
+  import java.io.IOException;
+  import java.util.StringTokenizer;
+  
+  import org.apache.hadoop.conf.Configuration;
+  import org.apache.hadoop.fs.Path;
+  import org.apache.hadoop.io.IntWritable;
+  import org.apache.hadoop.io.Text;
+  import org.apache.hadoop.mapreduce.Job;
+  import org.apache.hadoop.mapreduce.Mapper;
+  import org.apache.hadoop.mapreduce.Reducer;
+  import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+  import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+  public class WordCount {
+
+    // The class that will be used for the map tasks. Has to extend ''Mapper''.
+    // In general, overrides the ``map'' method.
+    // < > denotes the use of a Generic Type.  Text and IntWritable are Hadoop
+    // classes used for keys and values. In Hadoop, any key or value has to
+    // implement specific interfaces (Java's String or Integer cannot
+    // be used directly). 
+    public static class TokenizerMapper
+    extends Mapper<Object, Text, Text, IntWritable>{
+
+      private final static IntWritable one = new IntWritable(1);
+      private Text word = new Text();
+
+      // The method that will be used for the map tasks.
+      // Context is a class defined in Mapper, that gives access to
+      // input and output key/value pairs.
+      public void map(Object key, Text value, Context context
+      ) throws IOException, InterruptedException {
+        StringTokenizer itr = new StringTokenizer(value.toString());
+        while (itr.hasMoreTokens()) {
+          word.set(itr.nextToken());
+          // Emits key/value pair in the form <word, 1>
+          context.write(word, one);
+        }
+      }
+    }
+
+    // The class that will be used for the reducers and combiners.
+    public static class IntSumReducer
+    extends Reducer<Text,IntWritable,Text,IntWritable> {
+      private IntWritable result = new IntWritable();
+      
+      public void reduce(Text key, Iterable<IntWritable> values,
+      Context context
+      ) throws IOException, InterruptedException {
+        int sum = 0;
+        for (IntWritable val : values) {
+          sum += val.get();
+        }
+        result.set(sum);
+        context.write(key, result);
+      }
+    }
+
+    // Main method
+    public static void main(String[] args) throws Exception {
+      // Configuration provides access to configuration parameters
+      Configuration conf = new Configuration();
+      // Create a new Hadoop job named ``word count''
+      Job job = Job.getInstance(conf, "word count");
+      // Sets the Jar by finding where the WordCount class came from
+      job.setJarByClass(WordCount.class);
+      // Sets mapper class for the job.
+      job.setMapperClass(TokenizerMapper.class);
+      // Sets combiner class for the job.
+      job.setCombinerClass(IntSumReducer.class);
+      // Sets reducer class for the job.
+      job.setReducerClass(IntSumReducer.class);
+      // Set the key class for the job output data.
+      job.setOutputKeyClass(Text.class);
+      // Set the value class for job outputs.
+      job.setOutputValueClass(IntWritable.class);
+      // Add a Path to the list of inputs for the map-reduce job.
+      FileInputFormat.addInputPath(job, new Path(args[0]));
+      // Set the Path of the output directory for the map-reduce job.
+      FileOutputFormat.setOutputPath(job, new Path(args[1]));
+      System.exit(job.waitForCompletion(true) ? 0 : 1);
+    }
+  }
+\end{java}
+Add Hadoop's jars to the CLASSPATH:
+\begin{cli}
+  export CLASSPATH=$CLASSPATH:${HADOOP}/share/hadoop/common/hadoop-common-2.7.3.jar:\
+             ${HADOOP}/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.7.3.jar:.
+\end{cli}
+Compile the program:
+\begin{cli}
+$ javac WordCount.java
+\end{cli}
+Create a jar containing all the classes in WordCount:
+\begin{cli}
+  $ jar cvf wordcount.jar WordCount*.class
+\end{cli}
+Create test data and run the program:
+\begin{cli}
+  $ echo one > test.txt
+  $ echo two >> test.txt
+  $ echo three >> test.txt
+  $ echo two >> test.txt
+  $ echo three >> test.txt
+  $ echo three >> test.txt
+  $
+  $ hadoop jar wordcount.jar WordCount test.txt output
+\end{cli}
 
 \section{Hadoop Streaming}
 
-\section{Installation (pseudo-distributed mode)}
+While the Hadoop framework is developed in Java, it can also execute
+programs written in any language using the Hadoop Streaming tool. In
+this section, we are going to implement the word count example using
+the bash programming language. You may also implement it in any other
+language (Python, Ruby, etc) if you are more comfortable with it. 
+
+Hadoop Streaming works as follows:
+\begin{enumerate}
+\item The key/value pairs are passed to the mapper executable through its standard input.
+\item The mapper executable must write output key/value pairs on its standard output.
+\item The sorted key/value pairs are passed to the reduce executable
+  through its standard input.
+\end{enumerate}
+
+Hence, mappers and reducers can be tested as follows for any MapReduce
+program executed with Hadoop Streaming:
+\begin{cli}
+  $ cat input.txt | mapper.sh | sort | reduce.sh
+\end{cli}
+The mapper code is straightforward:
+\begin{bash}
+  #!/bin/bash
+
+  # Read all the lines passed on stdin
+  while read line
+  do
+    # Split the words in the line
+    for word in $line
+    do
+      # Emit a <word,1> key/value pair for every word
+      echo $word 1
+    done
+  done
+\end{bash}
+The reducer code is a bit more complex:
+\begin{bash}
+  #!/bin/bash
+
+  count=0
+  while read line
+  do
+    # Declare an array containing all the elements on the line
+    # About bash arrays: http://www.tldp.org/LDP/abs/html/arrays.html
+    tokens=( $line )
+    # The word (key) is the first element in the array
+    new_word=${tokens[0]}
+    # The number of occurrence of this word (value) is the second element in the array
+    increment=${tokens[1]}
+    # Remember that the key/value pairs produced by mappers
+    # are sorted before being passed to the reducer.
+    # Here we detect if the word in the key/value pair is the same
+    # as at the previous iteration or if it has changed.
+    if [[ ${new_word} = ${word} ]] || [ -z ${word+x} ]
+    then
+        # Word hasn't changed or it was not defined at the previous iteration:
+        # increment the counter by the value in key/value pair.
+	count=$((count+${increment}))
+    else
+        # Word has changed: emit the key/value pair and set the counter to the
+        # value in key/value pair.
+	echo $word $count
+	count=${increment}
+    fi
+    # Save the word for next iteration    
+    word=$new_word
+done
+# Emit last word
+echo $word $count
+\end{bash}
+Run the program with Hadoop Streaming as follows:
+\begin{cli}
+  hadoop jar ${HADOOP}/share/hadoop/tools/lib/hadoop-streaming-2.7.3.jar\
+  -input test.txt\
+  -output output\
+  -mapper ./mapper.sh\
+  -reducer ./reducer.sh\
+  -file reducer.sh -file mapper.sh 
+\end{cli}
+Create a larger text file and run the program again. The number of
+mappers and reducers can be changed with the following options:
+\texttt{mapreduce.job.reduces} and \texttt{mapreduce.job.maps}. For
+instance, to use two mappers and two reducers:
+\begin{cli}
+  hadoop jar ${HADOOP}/share/hadoop/tools/lib/hadoop-streaming-2.7.3.jar\
+  -D mapreduce.job.reduces=2\
+  -D mapreduce.job.map=2\
+  -input test.txt\
+  -output output\
+  -mapper ./mapper.sh\
+  -reducer ./reducer.sh\
+  -file reducer.sh -file mapper.sh 
+\end{cli}
+However, the framework uses only a single mapper and a single reducer
+because it is configured in standalone mode, i.e., as a single Java
+process. In the next section, we will configure the pseudo-distributed
+mode where Hadoop runs in several processes.
+%Funny enough, the number of mappers is ignored (because job tracker
+%is set to local) while the number of reducers is not.
+
+\section{Pseudo-distributed mode}
+
+
+In standalone mode, Hadoop was using the local filesystem to store
+files. In pseudo-distributed mode, it uses the Hadoop Distributed File
+System (HDFS).
+
+\section{ssh setup}
+
+Make sure that you can connect to your own workstation using ssh
+\emph{with no password}:
+\begin{cli}
+  $ ssh localhost
+\end{cli}
+If the ssh command prompts for a password, create a password-less ssh key and authorize it in your account:
+\begin{cli}
+  $ mkdir -p $HOME/.ssh
+  $ chmod 700 $HOME/.ssh
+  $ ssh-keygen
+  # press 'Enter' at every question
+  $ cat $HOME/.ssh/id_rsa.pub >> $HOME/.ssh/authorized_keys
+  $ chmod 600 $HOME/authorized_keys
+\end{cli}
 
 \section{HDFS}
 
+Configure the HDFS by adding the following to \texttt{etc/hadoop/core-site.xml}:
+\begin{xml}
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://localhost:9000</value>
+    </property>
+    <property>
+        <name>hadoop.tmp.dir</name>
+        <value>/some/path/on/your/workstation</value>
+    <description>A base for other temporary directories.</description>
+  </property>
+</configuration>
+\end{xml}
+and to \texttt{etc/hadoop/hdfs-site.xml}:
+\begin{xml}
+<configuration>
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
+    </property>
+</configuration>
+\end{xml}
+Format the file system:
+\begin{cli}
+$  hdfs namenode -format
+\end{cli}
+And start the HDFS daemons:
+\begin{cli}
+$ start-dfs.sh
+\end{cli}
+
+\begin{itemize}
+\item NameNode and DataNodes.
+  \item ssh
+\item Configuration and basic filesystem commands.
+\item Java API.
+\end{itemize}
+
+Adapt from \url{http://hadoop.apache.org/docs/r2.7.3/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html} and Chapter 3 of the definitive guide.
+
 \section{YARN}
 
+use yarn, see yarn-site.xml and mapred-site.xml.
+
+start yarn
+
 \section{Second example}
-
-
-  \begin{sectionbox}{}
-   \begin{verbatim}
-rm * -Rf
-   \end{verbatim}
-  \end{sectionbox}
 
 
 \end{document}
