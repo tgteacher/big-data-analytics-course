@@ -1,5 +1,4 @@
-# Instructions for the laboratory sessions of the Big Data Analytics
-  course at Concordia University (SOEN 498 / 691)
+# Lab sessions of the Big Data Analytics course at Concordia University (SOEN 498 / 691)
 
 # How to get a pdf
 
