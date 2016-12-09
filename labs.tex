@@ -1,10 +1,22 @@
 \documentclass[11pt]{article}
+
+% Packages
 \usepackage[colorlinks]{hyperref}
+\usepackage{listings}
 \usepackage{graphicx}
 \usepackage[dvipsnames]{xcolor}
-\usepackage{listings}
 
-% link colors
+% Colors
+\definecolor{mygray}{RGB}{235,235,235}
+
+% Margins
+\setlength{\topmargin}{-2cm}
+\setlength{\textwidth}{16.5cm}
+\setlength{\textheight}{24cm}
+\setlength{\evensidemargin}{0cm}
+\setlength{\oddsidemargin}{0cm}
+
+% Fix link colors
 \hypersetup{
     colorlinks = true,
     linkcolor=red,
@@ -13,46 +25,65 @@
     linktocpage % so that page numbers are clickable in toc
 }
 
-\definecolor{mygray}{RGB}{235,235,235}
 
-\setlength{\topmargin}{-2cm}
-\setlength{\textwidth}{16.5cm}
-\setlength{\textheight}{24cm}
-\setlength{\evensidemargin}{0cm}
-\setlength{\oddsidemargin}{0cm}
-
-\lstset{basicstyle=\ttfamily, keywordstyle=\color{blue}\ttfamily,
+% Code listings
+\lstset{
+  basicstyle=\ttfamily,
+  keywordstyle=\color{blue}\ttfamily,
   stringstyle=\color{red}\ttfamily,
   commentstyle=\color{magenta}\ttfamily,
-  morecomment=[l][\color{magenta}]{\#}}
+  morecomment=[l][\color{magenta}]{\#}
+}
 
 \lstnewenvironment{cli}
-{\footnotesize\lstset{columns=fullflexible,language=bash,backgroundcolor=\color{mygray}}}
+                  {\footnotesize
+                    \lstset{columns=fullflexible,
+                      language=bash,
+                      backgroundcolor=\color{mygray}
+                  }}
 {}
 
 \lstnewenvironment{xml}
-{\footnotesize\lstset{columns=fullflexible,language=xml,backgroundcolor=\color{Salmon}}}
+                  {\footnotesize
+                    \lstset{columns=fullflexible,
+                      language=XML,
+                      backgroundcolor=\color{Salmon},
+                      morekeywords={property,name,value,description,configuration}
+                  }}
 {}
 
 \newcommand{\bashcode}[1]{
-  \footnotesize
+  \begin{footnotesize}
   \par
-  \hfill \colorbox{SkyBlue}{\href{https://github.com/glatard/big-data-analytics-labs/blob/master/#1}{(\underline{Link to file})}} \hfill
-  \lstset{language=bash,columns=fullflexible,backgroundcolor=\color{SkyBlue}}
+  \hfill \colorbox{SkyBlue}
+         {
+           \href{https://github.com/glatard/big-data-analytics-labs/raw/master/#1}
+                {(\underline{Link to file})
+         }} \hfill
+         \lstset{language=bash,
+           columns=fullflexible,
+           backgroundcolor=\color{SkyBlue}}
   \vspace*{-0.3cm}
   \lstinputlisting{#1}
+  \end{footnotesize}
 }
 
 \newcommand{\javacode}[1]{
-  \footnotesize
+  \begin{footnotesize}
   \par
-  \hfill \colorbox{YellowGreen}{\href{https://github.com/glatard/big-data-analytics-labs/blob/master/#1}{(\underline{Link to file})}} \hfill
+  \hfill \colorbox{YellowGreen}
+         {\href{https://github.com/glatard/big-data-analytics-labs/raw/master/#1}
+           {(\underline{Link to file})
+         }} \hfill
+         \lstset{language=java,
+           columns=fullflexible,
+           backgroundcolor=\color{YellowGreen}}
   \vspace*{-0.3cm}
-  \lstset{language=java,columns=fullflexible,backgroundcolor=\color{YellowGreen}}
   \lstinputlisting{#1}
+  \end{footnotesize}
 }
                
-              
+% Notes and TODOs              
 \newcommand{\postit}[1]{%
 %  \noindent
 %  \fcolorbox{red}{yellow}{%
@@ -62,11 +93,9 @@
 %   }
 }
 
-
 \title{\textsc{Big Data Analytics (SOEN 498/691)} \\ Laboratory sessions}
 
 \author{Tristan Glatard\\Department of Computer Science and Software Engineering\\Concordia University, Montreal\\\href{mailto:tristan.glatard@concordia.ca}{tristan.glatard@concordia.ca}}
-
 
 \begin{document}
 
@@ -112,7 +141,7 @@ the instructions from
 \begin{cli}
 $ java -version
 \end{cli}
-Make sure that you are able to create and run a simple Java
+Make sure that you are able to create and run a simple Java program
 such as:
 \javacode{code/Test.java}
 This program is compiled as follows:
@@ -154,12 +183,12 @@ to install bash as it is already present on your workstation.
 \item \texttt{seq 1 1000}: prints the integers from 1 to 1000. 
 \item \texttt{tar}: handles 
   \texttt{tar}, \texttt{tgz} and many other types of archives.
-\item \texttt{wget}: downloads content of a URL.
+\item \texttt{wget}: downloads the content of a URL.
 \end{itemize}
 
 \subsection{Standard streams}
 
-A Linux process is connected to three particular files called \emph{streams}.
+A Linux process is connected to three particular files called \emph{streams}:
 \begin{itemize}
 \item The standard \emph{output} is used by the process to write normal information.
 \item The standard \emph{error} is used by the process to write error information.
@@ -205,10 +234,9 @@ sources:
 \item \href{http://hadoopbook.com}{Tom White, ``Hadoop: The Definitive Guide''. Chapter 2 (MapReduce).}
 \end{itemize}
 
-
-
-We will run Hadoop in standalone mode, i.e., in a single JVM. This
-mode is useful for debugging programs and testing things out.
+For now we will run Hadoop in \emph{standalone mode}, i.e., in a
+single JVM. This mode is useful for debugging programs and testing
+things out.
 
 \section{Installation}
 
@@ -240,19 +268,21 @@ Run a first example:
   $ hadoop jar ${HADOOP}/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.3.jar grep input output 1
   $ cat output/*
 \end{cli}
-This program prints the lines of the input file that contain ``1''.
+This program prints the lines of the input file that contain the
+string ``1''.
 
 \section{First MapReduce program}
 \label{sec:word-count}
 
 As a first MapReduce program, write the classical WordCount example:
 \javacode{WordCount.java}
-The code above has been commented so that you should be able to
+The code above is commented so that you should be able to
 understand what it does. Refer to the
 \href{http://hadoop.apache.org/docs/r2.7.3/api/index.html}{Apache
   Hadoop API reference} if anything is unclear.
 
-Add Hadoop's jars to the CLASSPATH:
+We will now compile and run this program. Add Hadoop's jars to the
+CLASSPATH:
 \begin{cli}
   export CLASSPATH=$CLASSPATH:${HADOOP}/share/hadoop/common/hadoop-common-2.7.3.jar:\
              ${HADOOP}/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.7.3.jar:.
@@ -265,7 +295,7 @@ Create a jar containing all the classes in WordCount:
 \begin{cli}
   $ jar cvf wordcount.jar WordCount*.class
 \end{cli}
-Create test data and run the program:
+Create a test file and run the program:
 \begin{cli}
   $ echo one two three two three three > test.txt
   $ hadoop jar wordcount.jar WordCount test.txt output
@@ -277,8 +307,8 @@ Create test data and run the program:
 While the Hadoop framework is developed in Java, it can also execute
 programs written in any language using the Hadoop Streaming tool. In
 this section, we are going to implement the WordCount example in
-bash. You may also implement WordCount in any other language (Python,
-Ruby, etc) if you wish.
+bash. You may also implement it in any other language (Python,
+Ruby, C, etc) if you wish.
 
 Hadoop Streaming works as follows:
 \begin{enumerate}
@@ -320,10 +350,10 @@ instance, to use two mappers and two reducers:
   -reducer ./reducer.sh\
   -file reducer.sh -file mapper.sh 
 \end{cli}
-However, the framework uses only a single mapper and a single reducer
+The framework still uses only a single mapper and a single reducer
 because it is configured in standalone mode, i.e., as a single Java
-process. In the next section, we will configure the pseudo-distributed
-mode where Hadoop runs in several processes.
+process. In the next part of the tutorial, we will configure the
+pseudo-distributed mode where Hadoop runs in several processes.
 %Funny enough, the number of mappers is ignored (because job tracker
 %is set to local) while the number of reducers is not.
 
@@ -446,7 +476,7 @@ After having compiled this file, create a jar and run it with Hadoop:
 \end{cli}
 A similar program can be written to write files to HDFS:
 \javacode{code/HdfsPut.java}
-
+Compile this class and make sure you can use it to write files to HDFS.
 % distcp?
 
 \section{YARN}
@@ -500,7 +530,7 @@ reducers.
 
 \subsection{Web interfaces}
 
-Look at the YARN monitoring interface (\url{http://localhost:8088})
+Browse the YARN monitoring interface (\url{http://localhost:8088})
 and the job history server (\url{http://localhost:19888}).
 
 \subsection{Improved WordCount}
