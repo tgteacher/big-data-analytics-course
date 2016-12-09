@@ -27,20 +27,20 @@
   morecomment=[l][\color{magenta}]{\#}}
 
 \lstnewenvironment{cli}
-               {\footnotesize \lstset{columns=flexible,language=bash,backgroundcolor=\color{mygray}}}
+               {\footnotesize \lstset{columns=fullflexible,language=bash,backgroundcolor=\color{mygray}}}
                {}
 
 \lstnewenvironment{xml}
-               {\footnotesize \lstset{columns=flexible,language=xml,backgroundcolor=\color{Salmon}}}
+               {\footnotesize \lstset{columns=fullflexible,language=xml,backgroundcolor=\color{Salmon}}}
                {}
 
                
 \lstnewenvironment{bash}
-               {\footnotesize \lstset{columns=flexible,language=bash,backgroundcolor=\color{SkyBlue}}}
+               {\footnotesize \lstset{columns=fullflexible,language=bash,backgroundcolor=\color{SkyBlue}}}
                {}
                
 \lstnewenvironment{java}
-               {\lstset{language=java,columns=flexible,backgroundcolor=\color{YellowGreen}}}
+               {\lstset{language=java,columns=fullflexible,backgroundcolor=\color{YellowGreen}}}
                {}
 
                
@@ -195,16 +195,27 @@ Here is also a list of useful environment variables:
 
 \part{Getting started with Hadoop}
 
-This part of the tutorial is adapted from the following sources:
+This part of the tutorial will guide you through practical steps to
+install Hadoop and write simple MapReduce programs. For a theoretical
+presentation of Hadoop and MapReduce, refer to Chapter 2
+of~\cite{mmds} (available
+\href{http://infolab.stanford.edu/~ullman/mmds/ch2.pdf}{here}) or to
+Chapter 2 of~\cite{lin} (available
+\href{http://lintool.github.io/MapReduceAlgorithms/ed1n/MapReduce-algorithms.pdf}{here})
+.  The content presented hereafter is adapted from the following
+sources:
 \begin{itemize}
 \item \href{http://hadoop.apache.org/docs/r2.7.3/index.html}{Apache Hadoop documentation}
 \item \href{http://hadoop.apache.org/docs/r2.7.3/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html}{MapReduce tutorial}
-\item \href{http://hadoopbook.com}{Tom White, ``Hadoop: The Definitive Guide''. Chapter 2 (MapReduce), Chapter 3 (HDFS).}
+\item \href{http://hadoopbook.com}{Tom White, ``Hadoop: The Definitive Guide''. Chapter 2 (MapReduce).}
 \end{itemize}
 
-\section{Standalone mode}
 
-\subsection{Installation}
+
+We will run Hadoop in standalone mode, i.e., in a single JVM. This
+mode is useful for debugging programs and testing things out.
+
+\section{Installation}
 
 Download Hadoop release 2.7.3 from one of the
 \href{http://www.apache.org/dyn/closer.cgi/hadoop/common/}{Apache
@@ -236,7 +247,8 @@ Run a first example:
 \end{cli}
 This program prints the lines of the input file that contain ``1''.
 
-\subsection{First MapReduce program}
+\section{First MapReduce program}
+\label{sec:word-count}
 
 As a first MapReduce program, write the classical WordCount example:
 \begin{java}
@@ -267,7 +279,7 @@ As a first MapReduce program, write the classical WordCount example:
       private final static IntWritable one = new IntWritable(1);
       private Text word = new Text();
 
-      // The method that will be used for the map tasks.
+      // Called once for each key/value pair in the input split.
       // Context is a class defined in Mapper, that gives access to
       // input and output key/value pairs.
       public void map(Object key, Text value, Context context
@@ -324,6 +336,11 @@ As a first MapReduce program, write the classical WordCount example:
     }
   }
 \end{java}
+The code above has been commented so that you should be able to
+understand what it does. Refer to the
+\href{http://hadoop.apache.org/docs/r2.7.3/api/index.html}{Apache
+  Hadoop API reference} if anything is unclear.
+
 Add Hadoop's jars to the CLASSPATH:
 \begin{cli}
   export CLASSPATH=$CLASSPATH:${HADOOP}/share/hadoop/common/hadoop-common-2.7.3.jar:\
@@ -343,7 +360,7 @@ Create test data and run the program:
   $ hadoop jar wordcount.jar WordCount test.txt output
 \end{cli}
 
-\subsection{Hadoop Streaming}
+\section{Hadoop Streaming}
 \label{sec:hadoop-streaming}
 
 While the Hadoop framework is developed in Java, it can also execute
@@ -445,14 +462,23 @@ mode where Hadoop runs in several processes.
 %Funny enough, the number of mappers is ignored (because job tracker
 %is set to local) while the number of reducers is not.
 
-\section{Pseudo-distributed mode}
+\part{HDFS and YARN}
 
 
 In standalone mode, Hadoop was using the local filesystem to store
-files. In pseudo-distributed mode, it uses the Hadoop Distributed File
-System (HDFS).
+files and all the jobs were executed in the same JVM. In
+pseudo-distributed mode, it uses the Hadoop Distributed File System
+(HDFS) and YARN (Yet Another Resource Negotiator).
 
-\subsection{ssh setup}
+The content presented hereafter is adapted from the following
+sources:
+\begin{itemize}
+\item \href{http://hadoop.apache.org/docs/r2.7.3/index.html}{Apache Hadoop documentation}
+\item \href{http://hadoop.apache.org/docs/r2.7.3/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html}{MapReduce tutorial}
+\item \href{http://hadoopbook.com}{Tom White, ``Hadoop: The Definitive Guide''. Chapter 2 (MapReduce), Chapter 3 (HDFS).}
+\end{itemize}
+
+\section{ssh setup}
 
 Make sure that you can connect to your own workstation using ssh
 \emph{with no password}:
@@ -469,9 +495,9 @@ If the ssh command prompts for a password, create a password-less ssh key and au
   $ chmod 600 $HOME/authorized_keys
 \end{cli}
 
-\subsection{HDFS}
+\section{HDFS}
 
-\subsubsection{Configuration}
+\subsection{Configuration}
 
 Configure the HDFS by adding the following to \texttt{etc/hadoop/core-site.xml}:
 \begin{xml}
@@ -505,7 +531,7 @@ And start the HDFS daemons:
 $ start-dfs.sh
 \end{cli}
 
-\subsubsection{Command-line usage}
+\subsection{Command-line usage}
 
 We will now review the main HDFS commands. Directory creation:
 \begin{cli}
@@ -534,12 +560,12 @@ File removal:
   $ hdfs dfs -rm /user/<username>/test.txt
 \end{cli}
 
-\subsubsection{Web interface}
+\subsection{Web interface}
 
 HDFS can be browsed through a web interface which is by default
 available at \href{http://localhost:50070}{http://localhost:50070}.
 
-\subsubsection{Java API}
+\subsection{Java API}
 
 The \texttt{FileSystem} API is the safest way to access files on HDFS
 from a Java program. A file in a Hadoop filsystem is represented by a
@@ -613,12 +639,12 @@ public class HdfsPut {
 
 % distcp?
 
-\subsection{YARN}
+\section{YARN}
 
 YARN (Yet Another Resource Negotiator) is the resource management
 system used in pseudo-distributed mode.
 
-\subsubsection{Configuration}
+\subsection{Configuration}
 
 Edit \texttt{etc/hadoop/mapred-site.xml} to add the following configuration properties:
 \begin{xml}
@@ -660,13 +686,220 @@ Re-run the Hadoop Streaming example of
 Section~\ref{sec:hadoop-streaming} using multiple mappers and
 reducers.
 
-\subsubsection{Web interfaces}
+\postit{benchmark with multiple mappers}
+
+\subsection{Web interfaces}
 
 Look at the YARN monitoring interface (\url{http://localhost:8088})
 and the job history server (\url{http://localhost:19888}).
 
-\section{More WordCount}
+\subsection{Improved WordCount}
 
+Here is a more complete WordCount example that adds the following
+features to the initial example presented in Section~\ref{sec:word-count}:
+\begin{itemize}
+\item It uses the distributed cache to distribute a ``skip'' file to all the mappers. The skip file contains patterns to be removed from words.
+\item The Mapper uses a \texttt{setup} method.
+\item It uses Counters to track statistics related to the execution.
+\item It uses Configuration to read configuration parameters.  
+\end{itemize}
+The code below has been commented so that you should be able to
+understand what it does. Refer to the
+\href{http://hadoop.apache.org/docs/r2.7.3/api/index.html}{Apache
+  Hadoop API reference} if anything is unclear.
+
+\begin{java}
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.util.GenericOptionsParser;
+import org.apache.hadoop.util.StringUtils;
+
+public class WordCount2 {
+
+  // Class that will be used for the map tasks.
+  public static class TokenizerMapper
+       extends Mapper<Object, Text, Text, IntWritable>{
+
+    // Definition for a group of 1 counter that
+    // will be used to count all the input words
+    static enum CountersEnum { INPUT_WORDS }
+
+    private final static IntWritable one = new IntWritable(1);
+    private Text word = new Text();
+
+    // Specifies whether matching is case sensitive.
+    // Value will be set from configuration.
+    private boolean caseSensitive;
+    // Specifies the patterns that should be ignored in the words.
+    // Patterns are contained in files stored in the distributed cache.
+    // A configuration parameter specifies whether patter skipping is
+    // activated.
+    private Set<String> patternsToSkip = new HashSet<String>();
+
+    private Configuration conf;
+    private BufferedReader fis;
+
+    // Called once at the beginning of the task, i.e.,
+    // once for all key-value pairs. Typically used to set
+    // configuration parameters and perform other common tasks.
+    @Override
+    public void setup(Context context) throws IOException,
+       InterruptedException {
+      // Read configuration parameters
+      conf = context.getConfiguration();
+      // First config parameter specifies whether matching will be case sensitive
+      caseSensitive = conf.getBoolean("wordcount.case.sensitive", true);
+      // Second config parameter specifies the file that contains the patterns to skip
+      // It is set by the main method when command-line option ``-skip'' is used.
+      if (conf.getBoolean("wordcount.skip.patterns", true)) {
+        // This is how file names is retrieved from the distributed cache
+        // In this case all the files in the cache are assumed to be skip files
+        URI[] patternsURIs = Job.getInstance(conf).getCacheFiles();
+        if(patternsURIs != null)
+        for (URI patternsURI : patternsURIs) {
+          Path patternsPath = new Path(patternsURI.getPath());
+          String patternsFileName = patternsPath.getName().toString();
+          parseSkipFile(patternsFileName);
+        }
+      }
+    }
+
+    // This method is called from setup. It parses a skip file
+    // and puts the patterns to skip in the patternsToSkip class attribute.   
+    private void parseSkipFile(String fileName) {
+      try {
+        // A file in the distributed cache is read as any other file.
+        fis = new BufferedReader(new FileReader(fileName));
+        String pattern = null;
+        while ((pattern = fis.readLine()) != null) {
+          patternsToSkip.add(pattern);
+        }
+      } catch (IOException ioe) {
+        System.err.println("Caught exception while parsing the cached file '"
+            + StringUtils.stringifyException(ioe));
+      }
+    }
+
+    // Called once for each key/value pair in the input split.
+    @Override
+    public void map(Object key, Text value, Context context
+         ) throws IOException, InterruptedException {
+      // Igonores case in the line if class attributed was set in setup.
+      String line = (caseSensitive) ?
+         value.toString() : value.toString().toLowerCase();
+      // Skips all the patterns on the line
+      for (String pattern : patternsToSkip) {
+        line = line.replaceAll(pattern, "");
+      }
+      StringTokenizer itr = new StringTokenizer(line);
+      while (itr.hasMoreTokens()) {
+        word.set(itr.nextToken());
+        context.write(word, one);
+        // Gets a counter called ``INPUT_WORDS'' with group ``CountersEnum''
+        Counter counter = context.getCounter(CountersEnum.class.getName(),
+            CountersEnum.INPUT_WORDS.toString());
+            // Increment the counter. Counters are shared among all map tasks.
+            // When the application completes, the counter will contain the total
+            // number of words that have been processed.
+        counter.increment(1);
+      }
+    }
+  }
+
+  // Reducer. Identical to the initial WordCount example.     
+  public static class IntSumReducer
+       extends Reducer<Text,IntWritable,Text,IntWritable> {
+    private IntWritable result = new IntWritable();
+
+    public void reduce(Text key, Iterable<IntWritable> values,
+                       Context context
+                       ) throws IOException, InterruptedException {
+      int sum = 0;
+      for (IntWritable val : values) {
+        sum += val.get();
+      }
+      result.set(sum);
+      context.write(key, result);
+    }
+  }
+
+  // Main method.
+  public static void main(String[] args) throws Exception {
+    Configuration conf = new Configuration();
+    // GenericOptionsParser helps parsing attributes passed to the application.
+    GenericOptionsParser optionParser = new GenericOptionsParser(conf, args);
+    String[] remainingArgs = optionParser.getRemainingArgs();
+    if (!(remainingArgs.length != 2 || remainingArgs.length != 4)) {
+      System.err.println("Usage: wordcount <in> <out> [-skip skipPatternFile]");
+      System.exit(2);
+    }
+    Job job = Job.getInstance(conf, "word count");
+    job.setJarByClass(WordCount2.class);
+    job.setMapperClass(TokenizerMapper.class);
+    job.setCombinerClass(IntSumReducer.class);
+    job.setReducerClass(IntSumReducer.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(IntWritable.class);
+
+    // Adds skip file to cache if available
+    List<String> otherArgs = new ArrayList<String>();
+    for (int i=0; i < remainingArgs.length; ++i) {
+      if ("-skip".equals(remainingArgs[i])) {
+        job.addCacheFile(new Path(remainingArgs[++i]).toUri());
+        job.getConfiguration().setBoolean("wordcount.skip.patterns", true);
+      } else {
+        otherArgs.add(remainingArgs[i]);
+      }
+    }
+    FileInputFormat.addInputPath(job, new Path(otherArgs.get(0)));
+    FileOutputFormat.setOutputPath(job, new Path(otherArgs.get(1)));
+
+    System.exit(job.waitForCompletion(true) ? 0 : 1);
+  }
+}  
+\end{java}
+Compile this example and check that it works as expected:
+\begin{itemize}
+\item Create a
+  text file with uppercase and lowercase characters and special
+  characters such as ',', '.' and '!'.
+\item Create a skip file containing the
+  special characters.
+\item Make sure that the program counts words as if there was no
+  special character.
+\item Make sure that the INPUT\_WORDS counter is properly
+  reported in the standard output at the end of the execution.
+\item Use option -Dwordcount.case.sensitive=false to perform case-insensitive matching.
+\end{itemize}
+
+Troubleshooting:
+\begin{itemize}
+\item JAR
+\texttt{hadoop/lib/common-cli-1.2.jar} is required to compile the
+code.
+\item Special characters such as '.' must be
+  escaped as in '\.' in the skip file.
+  \end{itemize}
+
+\bibliographystyle{plain} \bibliography{biblio}
 
 \end{document}
 
