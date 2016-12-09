@@ -323,31 +323,33 @@ program executed with Hadoop Streaming:
 \begin{cli}
   $ cat input.txt | mapper.sh | sort | reduce.sh
 \end{cli}
+(Replace \texttt{input.txt} with the name of your input file,
+\texttt{mapper.sh} with the bash script containing the mapper code and
+\texttt{reduce.sh} with the bash script containing the reduce code).
 The mapper code is straightforward:
-\bashcode{code/wordcount-mapper.sh}
-The reducer code is a bit more complex:
-\bashcode{code/wordcount-reduce.sh}
-Run the program with Hadoop Streaming as follows:
+\bashcode{code/wordcount-mapper.sh} The reducer code is a bit more
+complex: \bashcode{code/wordcount-reducer.sh} Run the program with
+Hadoop Streaming as follows:
 \begin{cli}
   hadoop jar ${HADOOP}/share/hadoop/tools/lib/hadoop-streaming-2.7.3.jar\
   -input test.txt\
   -output output\
-  -mapper ./mapper.sh\
-  -reducer ./reducer.sh\
-  -file reducer.sh -file mapper.sh 
+  -mapper ./wordcount-mapper.sh\
+  -reducer ./wordcount-reducer.sh\
+  -file wordcount-reducer.sh -file wordcount-mapper.sh 
 \end{cli}
 Create a larger text file and run the program again. The number of
 mappers and reducers can be changed with the following options:
 \texttt{mapreduce.job.reduces} and \texttt{mapreduce.job.maps}. For
 instance, to use two mappers and two reducers:
 \begin{cli}
-  hadoop jar ${HADOOP}/share/hadoop/tools/lib/hadoop-streaming-2.7.3.jar\
-  -D mapreduce.job.reduces=2\
-  -D mapreduce.job.map=2\
-  -input test.txt\
-  -output output\
-  -mapper ./mapper.sh\
-  -reducer ./reducer.sh\
+  hadoop jar ${HADOOP}/share/hadoop/tools/lib/hadoop-streaming-2.7.3.jar \
+  -D mapreduce.job.reduces=2 \
+  -D mapreduce.job.map=2 \
+  -input test.txt \
+  -output output \
+  -mapper ./mapper.sh \
+  -reducer ./reducer.sh \
   -file reducer.sh -file mapper.sh 
 \end{cli}
 The framework still uses only a single mapper and a single reducer
@@ -357,10 +359,12 @@ pseudo-distributed mode where Hadoop runs in several processes.
 %Funny enough, the number of mappers is ignored (because job tracker
 %is set to local) while the number of reducers is not.
 
+\postit{Add combiner}
+
 \part{HDFS and YARN}
 
 
-In standalone mode, Hadoop was using the local filesystem to store
+In standalone mode, Hadoop was using the local file system to store
 files and all the jobs were executed in the same JVM. In
 pseudo-distributed mode, it uses the Hadoop Distributed File System
 (HDFS) and YARN (Yet Another Resource Negotiator).
@@ -463,16 +467,16 @@ available at \href{http://localhost:50070}{http://localhost:50070}.
 \subsection{Java API}
 
 The \texttt{FileSystem} API is the safest way to access files on HDFS
-from a Java program. A file in a Hadoop filsystem is represented by a
+from a Java program. A file in a Hadoop file system is represented by a
 Hadoop \texttt{Path} object. You can think of a Path as a Hadoop
-filesystem URI, such as
+file system URI, such as
 \texttt{hdfs://localhost/user/tom/quangle.txt}.
 
 The following program reads a file on HDFS:
 \javacode{code/HdfsCat.java}
 After having compiled this file, create a jar and run it with Hadoop:
 \begin{cli}
-  $ hadoop jar <path to jar> <HDFS URI of file to cat>
+  $ hadoop jar <path to jar> HdfsCat <HDFS URI of file to cat>
 \end{cli}
 A similar program can be written to write files to HDFS:
 \javacode{code/HdfsPut.java}
@@ -565,8 +569,8 @@ Compile this example and check that it works as expected:
 
 Troubleshooting:
 \begin{itemize}
-\item JAR
-\texttt{hadoop/lib/common-cli-1.2.jar} is required to compile the
+\item Jar
+\texttt{${HADOOP}/share/hadoop/hdfs/lib/commons-cli-1.2.jar} must be added to the \texttt{CLASSPATH} variable to compile the
 code.
 \item Special characters such as '.' must be
   escaped as in '\.' in the skip file.

@@ -1,9 +1,11 @@
 *~
-*.class
 *.aux
+*.bbl
+*.blg
+*.class
+*.jar
 *.log
 *.out
-labs.pdf
 *.toc
 *.txt
-*.jar
+labs.pdf
