@@ -4,7 +4,7 @@
 
 A pdf is updated for every release of the document.
 
-(There is no release yet).
+* [Release 0.1.1](https://github.com/glatard/big-data-analytics-labs/releases/download/0.1.1/labs.pdf).
 
 # How to give feedback
 
