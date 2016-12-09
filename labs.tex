@@ -275,7 +275,7 @@ string ``1''.
 \label{sec:word-count}
 
 As a first MapReduce program, write the classical WordCount example:
-\javacode{WordCount.java}
+\javacode{code/WordCount.java}
 The code above is commented so that you should be able to
 understand what it does. Refer to the
 \href{http://hadoop.apache.org/docs/r2.7.3/api/index.html}{Apache
@@ -352,14 +352,14 @@ instance, to use two mappers and two reducers:
   -reducer ./reducer.sh \
   -file reducer.sh -file mapper.sh 
 \end{cli}
+You can also add a combiner with option \texttt{-combiner}.
+
 The framework still uses only a single mapper and a single reducer
 because it is configured in standalone mode, i.e., as a single Java
 process. In the next part of the tutorial, we will configure the
 pseudo-distributed mode where Hadoop runs in several processes.
 %Funny enough, the number of mappers is ignored (because job tracker
 %is set to local) while the number of reducers is not.
-
-\postit{Add combiner}
 
 \part{HDFS and YARN}
 
@@ -569,8 +569,7 @@ Compile this example and check that it works as expected:
 
 Troubleshooting:
 \begin{itemize}
-\item Jar
-\texttt{${HADOOP}/share/hadoop/hdfs/lib/commons-cli-1.2.jar} must be added to the \texttt{CLASSPATH} variable to compile the
+\item Jar \texttt{\${HADOOP}/share/hadoop/hdfs/lib/commons-cli-1.2.jar} must be added to the \texttt{CLASSPATH} variable to compile the
 code.
 \item Special characters such as '.' must be
   escaped as in '\.' in the skip file.
