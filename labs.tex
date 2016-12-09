@@ -27,30 +27,39 @@
   morecomment=[l][\color{magenta}]{\#}}
 
 \lstnewenvironment{cli}
-               {\footnotesize \lstset{columns=fullflexible,language=bash,backgroundcolor=\color{mygray}}}
-               {}
+{\footnotesize\lstset{columns=fullflexible,language=bash,backgroundcolor=\color{mygray}}}
+{}
 
 \lstnewenvironment{xml}
-               {\footnotesize \lstset{columns=fullflexible,language=xml,backgroundcolor=\color{Salmon}}}
-               {}
+{\footnotesize\lstset{columns=fullflexible,language=xml,backgroundcolor=\color{Salmon}}}
+{}
 
-               
-\lstnewenvironment{bash}
-               {\footnotesize \lstset{columns=fullflexible,language=bash,backgroundcolor=\color{SkyBlue}}}
-               {}
-               
-\lstnewenvironment{java}
-               {\lstset{language=java,columns=fullflexible,backgroundcolor=\color{YellowGreen}}}
-               {}
+\newcommand{\bashcode}[1]{
+  \footnotesize
+  \par
+  \hfill \colorbox{SkyBlue}{\href{https://github.com/glatard/big-data-analytics-labs/blob/master/#1}{(\underline{Link to file})}} \hfill
+  \lstset{language=bash,columns=fullflexible,backgroundcolor=\color{SkyBlue}}
+  \vspace*{-0.3cm}
+  \lstinputlisting{#1}
+}
 
+\newcommand{\javacode}[1]{
+  \footnotesize
+  \par
+  \hfill \colorbox{YellowGreen}{\href{https://github.com/glatard/big-data-analytics-labs/blob/master/#1}{(\underline{Link to file})}} \hfill
+  \vspace*{-0.3cm}
+  \lstset{language=java,columns=fullflexible,backgroundcolor=\color{YellowGreen}}
+  \lstinputlisting{#1}
+}
                
+              
 \newcommand{\postit}[1]{%
-  \noindent
-  \fcolorbox{red}{yellow}{%
-    \begin{minipage}{5cm}
-      #1
-    \end{minipage}
-   }
+%  \noindent
+%  \fcolorbox{red}{yellow}{%
+%    \begin{minipage}{5cm}
+%      #1
+%    \end{minipage}
+%   }
 }
 
 
@@ -83,17 +92,9 @@ This command is split in two lines:
     I hope you will enjoy it! 
 \end{cli}
 This is a piece of Java code:
-\begin{java}
-  int a=7;
-\end{java}
+\javacode{code/line.java}
 This is a piece of bash script:
-\begin{bash}
-  #!/bin/bash
-  for i in 1 2 3
-  do
-    echo $i
-  done
-\end{bash}
+\bashcode{code/test.sh}
 And this is a piece of XML file:
 \begin{xml}
   <one>
@@ -113,13 +114,7 @@ $ java -version
 \end{cli}
 Make sure that you are able to create and run a simple Java
 such as:
-\begin{java}
-public class Test{
-  public static void main(String[] args){
-    System.out.println(''Hello, World!'');
-  }
-}
-\end{java}
+\javacode{code/Test.java}
 This program is compiled as follows:
 \begin{cli}
 $ javac Test.java
@@ -251,91 +246,7 @@ This program prints the lines of the input file that contain ``1''.
 \label{sec:word-count}
 
 As a first MapReduce program, write the classical WordCount example:
-\begin{java}
-  import java.io.IOException;
-  import java.util.StringTokenizer;
-  
-  import org.apache.hadoop.conf.Configuration;
-  import org.apache.hadoop.fs.Path;
-  import org.apache.hadoop.io.IntWritable;
-  import org.apache.hadoop.io.Text;
-  import org.apache.hadoop.mapreduce.Job;
-  import org.apache.hadoop.mapreduce.Mapper;
-  import org.apache.hadoop.mapreduce.Reducer;
-  import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-  import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-
-  public class WordCount {
-
-    // The class that will be used for the map tasks. Has to extend ''Mapper''.
-    // In general, overrides the ``map'' method.
-    // < > denotes the use of a Generic Type.  Text and IntWritable are Hadoop
-    // classes used for keys and values. In Hadoop, any key or value has to
-    // implement specific interfaces (Java's String or Integer cannot
-    // be used directly). 
-    public static class TokenizerMapper
-    extends Mapper<Object, Text, Text, IntWritable>{
-
-      private final static IntWritable one = new IntWritable(1);
-      private Text word = new Text();
-
-      // Called once for each key/value pair in the input split.
-      // Context is a class defined in Mapper, that gives access to
-      // input and output key/value pairs.
-      public void map(Object key, Text value, Context context
-      ) throws IOException, InterruptedException {
-        StringTokenizer itr = new StringTokenizer(value.toString());
-        while (itr.hasMoreTokens()) {
-          word.set(itr.nextToken());
-          // Emits key/value pair in the form <word, 1>
-          context.write(word, one);
-        }
-      }
-    }
-
-    // The class that will be used for the reducers and combiners.
-    public static class IntSumReducer
-    extends Reducer<Text,IntWritable,Text,IntWritable> {
-      private IntWritable result = new IntWritable();
-      
-      public void reduce(Text key, Iterable<IntWritable> values,
-      Context context
-      ) throws IOException, InterruptedException {
-        int sum = 0;
-        for (IntWritable val : values) {
-          sum += val.get();
-        }
-        result.set(sum);
-        context.write(key, result);
-      }
-    }
-
-    // Main method
-    public static void main(String[] args) throws Exception {
-      // Configuration provides access to configuration parameters
-      Configuration conf = new Configuration();
-      // Create a new Hadoop job named ``word count''
-      Job job = Job.getInstance(conf, "word count");
-      // Sets the Jar by finding where the WordCount class came from
-      job.setJarByClass(WordCount.class);
-      // Sets mapper class for the job.
-      job.setMapperClass(TokenizerMapper.class);
-      // Sets combiner class for the job.
-      job.setCombinerClass(IntSumReducer.class);
-      // Sets reducer class for the job.
-      job.setReducerClass(IntSumReducer.class);
-      // Set the key class for the job output data.
-      job.setOutputKeyClass(Text.class);
-      // Set the value class for job outputs.
-      job.setOutputValueClass(IntWritable.class);
-      // Add a Path to the list of inputs for the map-reduce job.
-      FileInputFormat.addInputPath(job, new Path(args[0]));
-      // Set the Path of the output directory for the map-reduce job.
-      FileOutputFormat.setOutputPath(job, new Path(args[1]));
-      System.exit(job.waitForCompletion(true) ? 0 : 1);
-    }
-  }
-\end{java}
+\javacode{WordCount.java}
 The code above has been commented so that you should be able to
 understand what it does. Refer to the
 \href{http://hadoop.apache.org/docs/r2.7.3/api/index.html}{Apache
@@ -383,55 +294,9 @@ program executed with Hadoop Streaming:
   $ cat input.txt | mapper.sh | sort | reduce.sh
 \end{cli}
 The mapper code is straightforward:
-\begin{bash}
-  #!/bin/bash
-
-  # Read all the lines passed on stdin
-  while read line
-  do
-    # Split the words in the line
-    for word in $line
-    do
-      # Emit a <word,1> key/value pair for every word
-      echo $word 1
-    done
-  done
-\end{bash}
+\bashcode{code/wordcount-mapper.sh}
 The reducer code is a bit more complex:
-\begin{bash}
-  #!/bin/bash
-
-  count=0
-  while read line
-  do
-    # Declare an array containing all the elements on the line
-    # About bash arrays: http://www.tldp.org/LDP/abs/html/arrays.html
-    tokens=( $line )
-    # The word (key) is the first element in the array
-    new_word=${tokens[0]}
-    # The number of occurrence of this word (value) is the second element in the array
-    increment=${tokens[1]}
-    # Remember that the key/value pairs produced by mappers
-    # are sorted before being passed to the reducer.
-    # Here we detect if the word in the key/value pair is the same
-    # as at the previous iteration or if it has changed.
-    if [[ ${new_word} = ${word} ]] || [ -z ${word+x} ]
-    then
-        # Word hasn't changed or it was not defined at the previous iteration:
-        # increment the counter by the value in key/value pair.
-	count=$((count+${increment}))
-    else
-        # Word has changed: emit the key/value pair and set the counter to the
-        # value in key/value pair.
-	echo $word $count
-	count=${increment}
-    fi
-    # Save the word for next iteration    
-    word=$new_word
-done
-# Emit last word
-echo $word $count
-\end{bash}
+\bashcode{code/wordcount-reduce.sh}
 Run the program with Hadoop Streaming as follows:
 \begin{cli}
   hadoop jar ${HADOOP}/share/hadoop/tools/lib/hadoop-streaming-2.7.3.jar\
@@ -574,68 +439,13 @@ filesystem URI, such as
 \texttt{hdfs://localhost/user/tom/quangle.txt}.
 
 The following program reads a file on HDFS:
-\begin{java}
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
-
-
-public class HdfsCat {
-
-    public static void main(String[] args) throws IOException {
-        // URI to 'cat' will be passed as first argument
-        String hdfsUri = args[0];
-        // Create the FileSystem object
-        FileSystem fs = FileSystem.get(URI.create(hdfsUri), new Configuration());
-        // Create HDFS Path from URI
-        Path path = new Path(hdfsUri);
-        InputStream in = null;
-        try{
-            // Open an InputStream from the Path
-            in = fs.open(path);
-            // Copy bytes from InputStream to stdout
-            IOUtils.copyBytes(in, System.out, 4096, false);
-        } finally{
-            // Close the InputStream
-            IOUtils.closeStream(in);
-        }
-    }  
-}
-\end{java}
+\javacode{code/HdfsCat.java}
 After having compiled this file, create a jar and run it with Hadoop:
 \begin{cli}
   $ hadoop jar <path to jar> <HDFS URI of file to cat>
 \end{cli}
 A similar program can be written to write files to HDFS:
-\begin{java}
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
-
-
-public class HdfsPut {
-  public static void main(String[] args) throws FileNotFoundException, IOException{
-      String localFilePath = args[0];
-      String dest = args[1];
-      InputStream in = new BufferedInputStream(new FileInputStream(localFilePath));
-      FileSystem fs = FileSystem.get(URI.create(dest),new Configuration());
-      OutputStream out = fs.create(new Path(dest));
-      IOUtils.copyBytes(in, out, 4096, true);
-  }
-}
-\end{java}
+\javacode{code/HdfsPut.java}
 
 % distcp?
 
@@ -708,174 +518,7 @@ understand what it does. Refer to the
 \href{http://hadoop.apache.org/docs/r2.7.3/api/index.html}{Apache
   Hadoop API reference} if anything is unclear.
 
-\begin{java}
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.util.GenericOptionsParser;
-import org.apache.hadoop.util.StringUtils;
-
-public class WordCount2 {
-
-  // Class that will be used for the map tasks.
-  public static class TokenizerMapper
-       extends Mapper<Object, Text, Text, IntWritable>{
-
-    // Definition for a group of 1 counter that
-    // will be used to count all the input words
-    static enum CountersEnum { INPUT_WORDS }
-
-    private final static IntWritable one = new IntWritable(1);
-    private Text word = new Text();
-
-    // Specifies whether matching is case sensitive.
-    // Value will be set from configuration.
-    private boolean caseSensitive;
-    // Specifies the patterns that should be ignored in the words.
-    // Patterns are contained in files stored in the distributed cache.
-    // A configuration parameter specifies whether patter skipping is
-    // activated.
-    private Set<String> patternsToSkip = new HashSet<String>();
-
-    private Configuration conf;
-    private BufferedReader fis;
-
-    // Called once at the beginning of the task, i.e.,
-    // once for all key-value pairs. Typically used to set
-    // configuration parameters and perform other common tasks.
-    @Override
-    public void setup(Context context) throws IOException,
-       InterruptedException {
-      // Read configuration parameters
-      conf = context.getConfiguration();
-      // First config parameter specifies whether matching will be case sensitive
-      caseSensitive = conf.getBoolean("wordcount.case.sensitive", true);
-      // Second config parameter specifies the file that contains the patterns to skip
-      // It is set by the main method when command-line option ``-skip'' is used.
-      if (conf.getBoolean("wordcount.skip.patterns", true)) {
-        // This is how file names is retrieved from the distributed cache
-        // In this case all the files in the cache are assumed to be skip files
-        URI[] patternsURIs = Job.getInstance(conf).getCacheFiles();
-        if(patternsURIs != null)
-        for (URI patternsURI : patternsURIs) {
-          Path patternsPath = new Path(patternsURI.getPath());
-          String patternsFileName = patternsPath.getName().toString();
-          parseSkipFile(patternsFileName);
-        }
-      }
-    }
-
-    // This method is called from setup. It parses a skip file
-    // and puts the patterns to skip in the patternsToSkip class attribute.   
-    private void parseSkipFile(String fileName) {
-      try {
-        // A file in the distributed cache is read as any other file.
-        fis = new BufferedReader(new FileReader(fileName));
-        String pattern = null;
-        while ((pattern = fis.readLine()) != null) {
-          patternsToSkip.add(pattern);
-        }
-      } catch (IOException ioe) {
-        System.err.println("Caught exception while parsing the cached file '"
-            + StringUtils.stringifyException(ioe));
-      }
-    }
-
-    // Called once for each key/value pair in the input split.
-    @Override
-    public void map(Object key, Text value, Context context
-         ) throws IOException, InterruptedException {
-      // Igonores case in the line if class attributed was set in setup.
-      String line = (caseSensitive) ?
-         value.toString() : value.toString().toLowerCase();
-      // Skips all the patterns on the line
-      for (String pattern : patternsToSkip) {
-        line = line.replaceAll(pattern, "");
-      }
-      StringTokenizer itr = new StringTokenizer(line);
-      while (itr.hasMoreTokens()) {
-        word.set(itr.nextToken());
-        context.write(word, one);
-        // Gets a counter called ``INPUT_WORDS'' with group ``CountersEnum''
-        Counter counter = context.getCounter(CountersEnum.class.getName(),
-            CountersEnum.INPUT_WORDS.toString());
-            // Increment the counter. Counters are shared among all map tasks.
-            // When the application completes, the counter will contain the total
-            // number of words that have been processed.
-        counter.increment(1);
-      }
-    }
-  }
-
-  // Reducer. Identical to the initial WordCount example.     
-  public static class IntSumReducer
-       extends Reducer<Text,IntWritable,Text,IntWritable> {
-    private IntWritable result = new IntWritable();
-
-    public void reduce(Text key, Iterable<IntWritable> values,
-                       Context context
-                       ) throws IOException, InterruptedException {
-      int sum = 0;
-      for (IntWritable val : values) {
-        sum += val.get();
-      }
-      result.set(sum);
-      context.write(key, result);
-    }
-  }
-
-  // Main method.
-  public static void main(String[] args) throws Exception {
-    Configuration conf = new Configuration();
-    // GenericOptionsParser helps parsing attributes passed to the application.
-    GenericOptionsParser optionParser = new GenericOptionsParser(conf, args);
-    String[] remainingArgs = optionParser.getRemainingArgs();
-    if (!(remainingArgs.length != 2 || remainingArgs.length != 4)) {
-      System.err.println("Usage: wordcount <in> <out> [-skip skipPatternFile]");
-      System.exit(2);
-    }
-    Job job = Job.getInstance(conf, "word count");
-    job.setJarByClass(WordCount2.class);
-    job.setMapperClass(TokenizerMapper.class);
-    job.setCombinerClass(IntSumReducer.class);
-    job.setReducerClass(IntSumReducer.class);
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(IntWritable.class);
-
-    // Adds skip file to cache if available
-    List<String> otherArgs = new ArrayList<String>();
-    for (int i=0; i < remainingArgs.length; ++i) {
-      if ("-skip".equals(remainingArgs[i])) {
-        job.addCacheFile(new Path(remainingArgs[++i]).toUri());
-        job.getConfiguration().setBoolean("wordcount.skip.patterns", true);
-      } else {
-        otherArgs.add(remainingArgs[i]);
-      }
-    }
-    FileInputFormat.addInputPath(job, new Path(otherArgs.get(0)));
-    FileOutputFormat.setOutputPath(job, new Path(otherArgs.get(1)));
-
-    System.exit(job.waitForCompletion(true) ? 0 : 1);
-  }
-}  
-\end{java}
+\javacode{code/WordCount2.java}
 Compile this example and check that it works as expected:
 \begin{itemize}
 \item Create a
