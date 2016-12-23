@@ -6,12 +6,8 @@
 package pymk;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.StringTokenizer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -25,87 +21,121 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Pymk {
 
-     public static class AllPairsMapper extends Mapper<Object, Text, IntWritable, IntWritable> {
+    public static class AllPairsMapper extends Mapper<Object, Text, IntWritable, IntWritable> {
 
-        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-             StringTokenizer st = new StringTokenizer(value.toString());
-            IntWritable friend = new IntWritable();
-            IntWritable user = new IntWritable(Integer.parseInt(st.nextToken()));
+        // Emits (a,b) *and* (b,a) any time a friend common to a and b is found.
+        public void map(Object key, Text values, Context context) throws IOException, InterruptedException {
+            StringTokenizer st = new StringTokenizer(values.toString());
+            // Will store the friends we've already seen as we walk through the list of friends
+            ArrayList<Integer> seenFriends = new ArrayList<>(); 
+            // The elements in the pairs that will be emitted.
+            IntWritable friend1 = new IntWritable();
+            IntWritable friend2 = new IntWritable();
+            st.nextToken(); // discards first token
             while (st.hasMoreTokens()) {
-                friend.set(Integer.parseInt(st.nextToken()));
-                context.write(user,friend);
-                context.write(friend,user);
+                friend1.set(Integer.parseInt(st.nextToken()));
+                for (Integer seenFriend : seenFriends) {
+                    friend2.set(seenFriend);
+                    context.write(friend1, friend2);
+                    context.write(friend2, friend1);
+                }
+                seenFriends.add(friend1.get());
             }
         }
-        
+
     }
-    
+
     public static class CountReducer extends Reducer<IntWritable, IntWritable, IntWritable, Text> {
-        private static class Pair {
-            private int value;
-            private int count;
-            public Pair(int value){
-                this.value=value;
-                this.count=1;
+
+        // Models a recommendation. A recommendation has a friend
+        // id and a number of friends in common.
+        private static class Recommendation {
+
+            private int friendId;
+            private int nCommonFriends;
+
+            public Recommendation(int friendId) {
+                this.friendId = friendId;
+                // A recommendation must have at least 1 common friend
+                this.nCommonFriends = 1;
             }
-            public void increment(){
-                count++;
+
+            // Getters
+            
+            public int getFriendId() {
+                return friendId;
             }
-            public int getValue(){
-                return value;
+
+            public int getNCommonFriends() {
+                return nCommonFriends;
             }
-            public int getCount(){
-                return count;
+
+            // 
+            
+            public void addCommonFriend() {
+                nCommonFriends++;
             }
-            public static Pair findPair(int value, ArrayList<Pair> al){
-                for(Pair p : al){
-                    if(p.getValue() == value)
+            
+            // String representation used in the reduce output            
+            public String toString() {
+                return friendId+"("+nCommonFriends+")";
+            }
+            
+            // Finds a representation in an array
+            public static Recommendation find(int friendId, ArrayList<Recommendation> recommendations) {
+                for (Recommendation p : recommendations) {
+                    if (p.getFriendId() == friendId) {
                         return p;
+                    }
                 }
                 return null;
             }
-            
+
         }
-        public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException{
+
+        public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
             IntWritable user = key;
-            HashMap<Integer,Integer> hm = new HashMap<>();
-            ArrayList<Pair> al = new ArrayList<>();
-            while(values.iterator().hasNext()){
+            ArrayList<Recommendation> recommendations = new ArrayList<>();
+            // Builds the recommendation array
+            while (values.iterator().hasNext()) {
                 int value = values.iterator().next().get();
-                Pair p = Pair.findPair(value, al);
-                if(p==null)
-                    al.add(new Pair(value));
-                else
-                    p.increment();
+                Recommendation p = Recommendation.find(value, recommendations);
+                if (p == null) {
+                    recommendations.add(new Recommendation(value));
+                } else {
+                    p.addCommonFriend();
+                }
             }
-            al.sort(new Comparator<Pair>() {
+            // Sorts the recommendation array
+            // See javadoc on Comparator at https://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html
+            recommendations.sort(new Comparator<Recommendation>() {
                 @Override
-                public int compare(Pair t, Pair t1) {
-                    return -Integer.compare(t.getCount(),t1.getCount());
+                public int compare(Recommendation t, Recommendation t1) {
+                    return -Integer.compare(t.getNCommonFriends(), t1.getNCommonFriends());
                 }
             });
-            StringBuffer sb = new StringBuffer("");
-            for(int i = 0 ; i < al.size() && i < 10 ; i ++){
-                Pair p = al.get(i);
-                sb.append(p.getValue()+"("+p.getCount()+") ");
+            // Builds the output string that will be emitted
+            StringBuffer sb = new StringBuffer(""); // Using a StringBuffer is more efficient than concatenating strings
+            for (int i = 0; i < recommendations.size() && i < 10; i++) {
+                Recommendation p = recommendations.get(i);
+                sb.append(p.toString()+" ");
             }
             Text result = new Text(sb.toString());
-            context.write(user,result);
-            
+            context.write(user, result);
         }
     }
-     
+
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "people you may know");
         job.setJarByClass(Pymk.class);
         job.setMapperClass(AllPairsMapper.class);
-        job.setReducerClass(CountReducer.class);    
+        job.setReducerClass(CountReducer.class);
         job.setOutputKeyClass(IntWritable.class);
         job.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
-    
+
 }
