@@ -1,0 +1,210 @@
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage[colorlinks]{hyperref}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[dvipsnames]{xcolor}
+
+% Colors
+\definecolor{mygray}{RGB}{235,235,235}
+
+% Margins
+\setlength{\topmargin}{-2cm}
+\setlength{\textwidth}{16.5cm}
+\setlength{\textheight}{24cm}
+\setlength{\evensidemargin}{0cm}
+\setlength{\oddsidemargin}{0cm}
+
+% Fix link colors
+\hypersetup{
+    colorlinks = true,
+    linkcolor=red,
+    citecolor=red,
+    urlcolor=blue,
+    linktocpage % so that page numbers are clickable in toc
+}
+
+
+% Code listings
+\lstset{
+  basicstyle=\ttfamily,
+  keywordstyle=\color{blue}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  commentstyle=\color{magenta}\ttfamily,
+  morecomment=[l][\color{magenta}]{\#}
+}
+
+
+\lstnewenvironment{cli}
+                  {\footnotesize
+                    \lstset{columns=fullflexible,
+                      language=bash,
+                      backgroundcolor=\color{mygray}
+                  }}
+{}
+
+\lstnewenvironment{xml}
+                  {\footnotesize
+                    \lstset{columns=fullflexible,
+                      language=XML,
+                      backgroundcolor=\color{Salmon},
+                      morekeywords={property,name,value,description,configuration}
+                  }}
+{}
+
+\newcommand{\bashcode}[1]{
+  \begin{footnotesize}
+  \par
+  \hfill \colorbox{SkyBlue}
+         {
+           \href{https://github.com/glatard/big-data-analytics-labs/raw/master/#1}
+                {(\underline{Link to file})
+         }} \hfill
+         \lstset{language=bash,
+           columns=fullflexible,
+           backgroundcolor=\color{SkyBlue}}
+  \vspace*{-0.3cm}
+  \lstinputlisting{#1}
+  \end{footnotesize}
+}
+
+\newcommand{\javacode}[1]{
+  \begin{footnotesize}
+  \par
+  \hfill \colorbox{YellowGreen}
+         {\href{https://github.com/glatard/big-data-analytics-labs/raw/master/#1}
+           {(\underline{Link to file})
+         }} \hfill
+         \lstset{language=java,
+           columns=fullflexible,
+           backgroundcolor=\color{YellowGreen}}
+  \vspace*{-0.3cm}
+%  \lstinputlisting{#1}
+  \end{footnotesize}
+}
+
+\newcommand{\textfile}[1]{
+  \begin{footnotesize}
+  \par
+  \hfill \colorbox{SkyBlue}
+         {\href{https://github.com/glatard/big-data-analytics-labs/raw/master/#1}
+           {(\underline{Link to file})
+         }} \hfill
+         \lstset{columns=fullflexible,
+           backgroundcolor=\color{SkyBlue}}
+  \vspace*{-0.3cm}
+  \lstinputlisting{#1}
+  \end{footnotesize}
+}
+
+
+% Notes and TODOs              
+\newcommand{\postit}[1]{%
+%  \noindent
+%  \fcolorbox{red}{yellow}{%
+%    \begin{minipage}{5cm}
+%      #1
+%    \end{minipage}
+%   }
+}
+
+\title{\textsc{Big Data Analytics (SOEN 498/691)} \\ Laboratory sessions}
+
+\author{Tristan Glatard\\Department of Computer Science and Software Engineering\\Concordia University, Montreal\\\href{mailto:tristan.glatard@concordia.ca}{tristan.glatard@concordia.ca}}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+
+Now that you are able to run a simple MapReduce example using Hadoop,
+we will focus on more complex algorithms. We will look at two popular
+algorithms used in social networks: ``People You May Know''
+(Part~\ref{part:pymk} below) and ``Who To Follow''
+(Part~\ref{part:wtf}). For ``People You May Know'', a link to a
+solution implemented in Java is provided, but it is strongly
+recommended that you try to implement your own code before looking at
+the proposed solution. There is no assignment for ``People You May
+Know''. ``Who To Follow'' is an assignment due for the date indicated
+on the course outline.
+
+\part{People You May Know}
+\label{part:pymk}
+
+\section{Goal}
+
+We will implement a basic ``People You May Know''
+algorithm using MapReduce. We assume an un-directed social network of
+\emph{n} users with a symmetrical ``friend'' relation among users,
+that is, if user A is a friend of user B then user B is also a friend
+of user A. Facebook is an example of such a network. Twitter is a
+counter example because user A may follow user B while user B does not
+follow user A. The algorithm will recommended to user X a list of friends
+$Y_i$ based on the number of friends that X and $Y_i$ have in common. The
+input and output of the algorithm will be as follows:
+\begin{itemize}
+\item Input: A file containing \emph{n} lines with space-separated integers:
+  \newline \texttt{<UID> <F$_1$> <F$_2$> ...}\newline where
+  \texttt{<F$_i$>} are the friends of user
+  \texttt{<UID>}. For instance: \textfile{data-small.txt}
+\item Output: A file containing \emph{n} lines in the following format:
+  \texttt{<UID> <R$_1$>(n$_1$) <R$_2$>(n$_2$) <R$_3$>(n$_3$)} where \texttt{<R$_i$>} are the ids of the friends recommended to user \texttt{<UID>} and $n_i$
+  is the number of friends in common between \texttt{<UID>} and
+  \texttt{<R$_i$>}. Recommended friends \texttt{<R$_i$>} must be ordered by
+  decreasing values of \texttt{<n$_i$>}.
+\end{itemize}
+
+The following sections will guide you through a possible
+implementation of such an algorithm. Feel free to follow your own
+thread if you have any idea how to implement this.
+
+\section{Basic idea}
+
+The basic idea of our initial implementation is the following:
+\begin{itemize}
+\item Map step:
+  \begin{itemize}
+  \item Receive (\_,v): \texttt{\_, <UID> <F$_1$> <F$_2$> ... <F$_k$>}
+  \item Emit (k,v): \texttt{<F$_i$>},\texttt{<F$_j$>} where $i \in [1,k]$, $j \in [1,k]$ and $i \neq j$.
+  \end{itemize}
+  In other words, \texttt{(a,b)} \emph{and} \texttt{(b,a)} are emitted every time a friend common to users \texttt{a} and \texttt{b} is found.
+\item Reduce step:
+  \begin{itemize}
+  \item Receive (k, [v]): \texttt{<UID>, [ <F$_1$> <F$_2$>
+    ... ]} \newline In this list the \texttt{<F$_i$>}s are not
+    unique: instead, \texttt{<F$_i$>} appears exactly \texttt{x} times
+    when users \texttt{<UID>} and \texttt{<F$_i$>} have \texttt{x}
+    friends in common.
+  \item Emit (k, v): \texttt{<UID>, "<F$_1$>(n$_1$) <F$_2$>(n$_2$) ..."}\newline
+    where \texttt{F$_i$} appeared exactly \texttt{$n_i$} times in the received values.
+  \end{itemize}
+\end{itemize}
+
+Implement a ``People You May Know'' system based on this
+principle. Make sure that it produces the following result from the
+input example mentioned above: \textfile{output-pymk/part-r-00000}.
+
+Here is a possible implementation:
+\javacode{pymk1.java}
+\newline
+\vspace*{0.5cm}
+
+Can we use a combiner for this program? Why?
+
+
+\section{Filtering existing friends}
+
+\part{Who To Follow}
+\label{part:wtf}
+
+\end{document}
+
+
