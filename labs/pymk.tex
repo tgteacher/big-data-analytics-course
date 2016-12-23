@@ -129,10 +129,10 @@ Now that you are able to run a simple MapReduce example using Hadoop,
 we will focus on more complex algorithms. We will look at two popular
 algorithms used in social networks: ``People You May Know''
 (Part~\ref{part:pymk} below) and ``Who To Follow''
-(Part~\ref{part:wtf}). For ``People You May Know'', a link to a
-solution implemented in Java is provided, but it is strongly
+(Part~\ref{part:wtf}). For ``People You May Know'', links to 
+solutions implemented in Java are provided, but it is strongly
 recommended that you try to implement your own code before looking at
-the proposed solution. There is no assignment for ``People You May
+the solutions. There is no assignment for ``People You May
 Know''. ``Who To Follow'' is an assignment due for the date indicated
 on the course outline.
 
@@ -190,17 +190,28 @@ The basic idea of our initial implementation is the following:
 
 Implement a ``People You May Know'' system based on this
 principle. Make sure that it produces the following result from the
-input example mentioned above: \textfile{pymk/output-pymk/part-r-00000}.
+input example mentioned above:
+\textfile{pymk/output-pymk/part-r-00000}
 
-Here is a possible implementation:
+Test your
+implementation on larger networks by generating input files using
+\href{https://github.com/glatard/big-data-analytics-course/raw/master/labs/pymk/generate.py}{\texttt{generate.py}}.
+
+Here is a possible solution:
 \javacode{pymk/Pymk.java}
 \newline
 \vspace*{0.5cm}
 
-Can we use a combiner for this program? Why?
-
+%Can we use a combiner for this program? Why?
 
 \section{Filtering existing friends}
+
+There is a problem with the current implementation: it may recommend
+existing friends to a given user. For instance, in the example above,
+user \texttt{3} is recommended to user \texttt{1} although \texttt{1}
+and \texttt{3} are already friends. To avoid that, we will modify the
+previous program as follows:
+
 
 \part{Who To Follow}
 \label{part:wtf}
