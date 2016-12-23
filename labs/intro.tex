@@ -121,9 +121,9 @@ This command is split in two lines:
     I hope you will enjoy it! 
 \end{cli}
 This is a piece of Java code:
-\javacode{code/line.java}
+\javacode{intro/line.java}
 This is a piece of bash script:
-\bashcode{code/test.sh}
+\bashcode{intro/test.sh}
 And this is a piece of XML file:
 \begin{xml}
   <one>
@@ -143,7 +143,7 @@ $ java -version
 \end{cli}
 Make sure that you are able to create and run a simple Java program
 such as:
-\javacode{code/Test.java}
+\javacode{intro/Test.java}
 This program is compiled as follows:
 \begin{cli}
 $ javac Test.java
@@ -275,7 +275,7 @@ string ``1''.
 \label{sec:word-count}
 
 As a first MapReduce program, write the classical WordCount example:
-\javacode{code/WordCount.java}
+\javacode{intro/WordCount.java}
 The code above is commented so that you should be able to
 understand what it does. Refer to the
 \href{http://hadoop.apache.org/docs/r2.7.3/api/index.html}{Apache
@@ -327,8 +327,8 @@ program executed with Hadoop Streaming:
 \texttt{mapper.sh} with the bash script containing the mapper code and
 \texttt{reduce.sh} with the bash script containing the reduce code).
 The mapper code is straightforward:
-\bashcode{code/wordcount-mapper.sh} The reducer code is a bit more
-complex: \bashcode{code/wordcount-reducer.sh} Run the program with
+\bashcode{intro/wordcount-mapper.sh} The reducer code is a bit more
+complex: \bashcode{intro/wordcount-reducer.sh} Run the program with
 Hadoop Streaming as follows:
 \begin{cli}
   hadoop jar ${HADOOP}/share/hadoop/tools/lib/hadoop-streaming-2.7.3.jar\
@@ -473,13 +473,13 @@ file system URI, such as
 \texttt{hdfs://localhost/user/tom/quangle.txt}.
 
 The following program reads a file on HDFS:
-\javacode{code/HdfsCat.java}
+\javacode{intro/HdfsCat.java}
 After having compiled this file, create a jar and run it with Hadoop:
 \begin{cli}
   $ hadoop jar <path to jar> HdfsCat <HDFS URI of file to cat>
 \end{cli}
 A similar program can be written to write files to HDFS:
-\javacode{code/HdfsPut.java}
+\javacode{intro/HdfsPut.java}
 Compile this class and make sure you can use it to write files to HDFS.
 % distcp?
 
@@ -552,7 +552,7 @@ understand what it does. Refer to the
 \href{http://hadoop.apache.org/docs/r2.7.3/api/index.html}{Apache
   Hadoop API reference} if anything is unclear.
 
-\javacode{code/WordCount2.java}
+\javacode{intro/WordCount2.java}
 Compile this example and check that it works as expected:
 \begin{itemize}
 \item Create a

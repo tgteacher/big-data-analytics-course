@@ -154,7 +154,7 @@ input and output of the algorithm will be as follows:
 \item Input: A file containing \emph{n} lines with space-separated integers:
   \newline \texttt{<UID> <F$_1$> <F$_2$> ...}\newline where
   \texttt{<F$_i$>} are the friends of user
-  \texttt{<UID>}. For instance: \textfile{data-small.txt}
+  \texttt{<UID>}. For instance: \textfile{pymk/data-small.txt}
 \item Output: A file containing \emph{n} lines in the following format:
   \texttt{<UID> <R$_1$>(n$_1$) <R$_2$>(n$_2$) <R$_3$>(n$_3$)} where \texttt{<R$_i$>} are the ids of the friends recommended to user \texttt{<UID>} and $n_i$
   is the number of friends in common between \texttt{<UID>} and
@@ -190,10 +190,10 @@ The basic idea of our initial implementation is the following:
 
 Implement a ``People You May Know'' system based on this
 principle. Make sure that it produces the following result from the
-input example mentioned above: \textfile{output-pymk/part-r-00000}.
+input example mentioned above: \textfile{pymk/output-pymk/part-r-00000}.
 
 Here is a possible implementation:
-\javacode{pymk1.java}
+\javacode{pymk/Pymk.java}
 \newline
 \vspace*{0.5cm}
 
