@@ -164,7 +164,8 @@ input and output of the algorithm will be as follows:
 
 The following sections will guide you through a possible
 implementation of such an algorithm. Feel free to follow your own
-thread if you have any idea how to implement this.
+thread if you have any idea how to implement it: you may find a
+better solution than the one proposed!
 
 \section{Basic idea}
 
@@ -175,43 +176,69 @@ The basic idea of our initial implementation is the following:
   \item Receive (\_,v): \texttt{\_, <UID> <F$_1$> <F$_2$> ... <F$_k$>}
   \item Emit (k,v): \texttt{<F$_i$>},\texttt{<F$_j$>} where $i \in [1,k]$, $j \in [1,k]$ and $i \neq j$.
   \end{itemize}
-  In other words, \texttt{(a,b)} \emph{and} \texttt{(b,a)} are emitted every time a friend common to users \texttt{a} and \texttt{b} is found.
+  In other words, \texttt{(a,b)} \emph{and} \texttt{(b,a)} are emitted every time a friend common to users \texttt{a} and \texttt{b} is found. The following key-value pairs are emitted in response to the input example above:
+  \textfile{pymk/emitted.txt}
 \item Reduce step:
   \begin{itemize}
   \item Receive (k, [v]): \texttt{<UID>, [ <F$_1$> <F$_2$>
     ... ]} \newline In this list the \texttt{<F$_i$>}s are not
     unique: instead, \texttt{<F$_i$>} appears exactly \texttt{x} times
     when users \texttt{<UID>} and \texttt{<F$_i$>} have \texttt{x}
-    friends in common.
+    friends in common. For instance, the following key-value pairs are received in our example:
+    \textfile{pymk/received.txt}
   \item Emit (k, v): \texttt{<UID>, "<F$_1$>(n$_1$) <F$_2$>(n$_2$) ..."}\newline
-    where \texttt{F$_i$} appeared exactly \texttt{$n_i$} times in the received values.
+    where \texttt{F$_i$} appeared exactly \texttt{$n_i$} times in the received values. In our example: \textfile{pymk/output-pymk/part-r-00000}
   \end{itemize}
 \end{itemize}
 
 Implement a ``People You May Know'' system based on this
-principle. Make sure that it produces the following result from the
-input example mentioned above:
-\textfile{pymk/output-pymk/part-r-00000}
-
-Test your
-implementation on larger networks by generating input files using
+principle. Make sure that it produces the correct result using the
+example above. Then, test your implementation on larger networks by
+generating input files using
 \href{https://github.com/glatard/big-data-analytics-course/raw/master/labs/pymk/generate.py}{\texttt{generate.py}}.
 
 Here is a possible solution:
 \javacode{pymk/Pymk.java}
-\newline
-\vspace*{0.5cm}
-
-%Can we use a combiner for this program? Why?
 
 \section{Filtering existing friends}
 
-There is a problem with the current implementation: it may recommend
+There is a problem with the previous implementation: it may recommend
 existing friends to a given user. For instance, in the example above,
 user \texttt{3} is recommended to user \texttt{1} although \texttt{1}
-and \texttt{3} are already friends. To avoid that, we will modify the
-previous program as follows:
+and \texttt{3} are already friends. The information about the friends
+of user \texttt{i} is currently discarded by our map step. We need to somehow
+emit key-value pairs containing the friends of user \texttt{i}, to address
+this issue.  Here is a possible solution:
+\begin{itemize}
+\item Map step:
+  \begin{itemize}
+  \item Receive (\_,v): \emph{no change}.
+  \item Emit (k,v):
+    \begin{itemize}
+    \item \texttt{<F$_i$>},\texttt{<F$_j$>} where $i \in [1,k]$, $j \in [1,k]$ and $i \neq j$.
+    \item \texttt{<UID>}, \color{red}\textbf{-}\color{black}\texttt{<F$_i$>} for all $i \in [1,k]$ 
+    \end{itemize}
+    For instance, in the example above: \textfile{pymk/emitted-1.txt}
+  \end{itemize}
+\item Reduce step:
+  \begin{itemize}
+  \item Receive (k, [v]): \texttt{<UID>, [ <F$_1$> <F$_2$>
+      ... ]} \newline
+    
+    If \texttt{<F$_i$>} is negative then it is a friend of user \texttt{<UID>}. Otherwise, it is a user who has friends in common with \texttt{<UID>}. In our example:
+    \textfile{pymk/received-1.txt}
+  \item Emit (k, v): \texttt{<UID>, "<F$_1$>(n$_1$) <F$_2$>(n$_2$)
+    ..."}\newline where \texttt{F$_i$} appeared exactly \texttt{$n_i$}
+    times in the received values after the friends of \texttt{<UID>}
+    have been removed. In our example:
+    \textfile{pymk/output-pymk-1/part-r-00000}
+  \end{itemize}
+\end{itemize}
 
+Implement this solution and verify that it works correctly.
+
+Here is a possible solution:
+\javacode{pymk/Pymk1.java}
 
 \part{Who To Follow}
 \label{part:wtf}
