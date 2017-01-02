@@ -14,6 +14,8 @@ do
     # are sorted before being passed to the reducer.
     # Here we detect if the word in the key/value pair is the same
     # as at the previous iteration or if it has changed.
+    # ${word+x} is a bash parameter expansion that is substituted to word if
+    # and only if word is set (see https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html)
     if [[ ${new_word} = ${word} ]] || [ -z ${word+x} ]
     then
         # Word hasn't changed or it was not defined at the previous iteration:

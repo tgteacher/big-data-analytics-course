@@ -321,11 +321,11 @@ Hadoop Streaming works as follows:
 Hence, mappers and reducers can be tested as follows for any MapReduce
 program executed with Hadoop Streaming:
 \begin{cli}
-  $ cat input.txt | mapper.sh | sort | reduce.sh
+  $ cat input.txt | mapper.sh | sort | reducer.sh
 \end{cli}
 (Replace \texttt{input.txt} with the name of your input file,
 \texttt{mapper.sh} with the bash script containing the mapper code and
-\texttt{reduce.sh} with the bash script containing the reduce code).
+\texttt{reducer.sh} with the bash script containing the reduce code).
 The mapper code is straightforward:
 \bashcode{intro/wordcount-mapper.sh} The reducer code is a bit more
 complex: \bashcode{intro/wordcount-reducer.sh} Run the program with
@@ -334,8 +334,8 @@ Hadoop Streaming as follows:
   hadoop jar ${HADOOP}/share/hadoop/tools/lib/hadoop-streaming-2.7.3.jar\
   -input test.txt\
   -output output\
-  -mapper ./wordcount-mapper.sh\
-  -reducer ./wordcount-reducer.sh\
+  -mapper ./mapper.sh\
+  -reducer ./reducer.sh\
   -file wordcount-reducer.sh -file wordcount-mapper.sh 
 \end{cli}
 Create a larger text file and run the program again. The number of
