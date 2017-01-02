@@ -6,7 +6,7 @@ import random
 def pretty_print(i,followed_users):
     line=str(i)+"\t"
     first=True
-    for x in followed_users:
+    for x in sorted(followed_users):
         if first:
             line+=" "
         line+=str(x)
