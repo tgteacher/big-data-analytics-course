@@ -130,40 +130,47 @@ Now that you are able to run a simple MapReduce example using Hadoop,
 we will focus on more complex algorithms. We will look at two popular
 applications used in social networks: ``People You May Know''
 (Part~\ref{part:pymk} below) and ``Who To Follow''
-(Part~\ref{part:wtf}). ``People You May Know'' is not an assignment. Links to 
-solutions implemented in Java are provided but it is strongly
-recommended that you try to implement your own code before looking at
-the solutions. ``Who To Follow'' is an assignment due for the date indicated
-on the course outline.
+(Part~\ref{part:wtf}).  ``People You May Know'' is not an
+assignment. Links to solutions implemented in Java are provided but it
+is strongly recommended that you try to implement your own code before
+looking at the solutions. ``Who To Follow'' is an assignment due for
+the date indicated on the course outline. It is strongly recommended
+to complete ``People You May Know'' before doing ``Who To Follow'' as
+the solutions to these problems have a lot in common.
 
 \part{People You May Know}
 \label{part:pymk}
 
 \section{Goal}
 
-We will implement a basic ``People You May Know''
-algorithm using MapReduce. We assume an un-directed social network of
-\emph{n} users with a symmetrical ``friend'' relation among users,
-that is, if user A is a friend of user B then user B is also a friend
-of user A. Facebook is an example of such a network. Twitter is a
-counter example because user A may follow user B while user B does not
-follow user A. The algorithm will recommended to user X a list of friends
-$Y_i$ based on the number of friends that X and $Y_i$ have in common. The
-input and output of the algorithm will be as follows:
+We will implement a basic ``People You May Know'' algorithm using
+MapReduce. We assume an un-directed social network of \emph{n} users
+with a symmetrical ``friend'' relation among users, that is, if user
+\texttt{A} is a friend of user \texttt{B} then user \texttt{B} is also
+a friend of user \texttt{A}. Facebook is an example of such a
+network. Twitter is a counter example because user \texttt{A} may
+follow user \texttt{B} whereas user \texttt{B} does not follow user
+\texttt{A}. The algorithm will recommended to user \texttt{X} a list
+of friends \texttt{Y$_i$} based on the number of friends that
+\texttt{X} and \texttt{Y$_i$} have in common. The input and output of the
+algorithm will be as follows:
 \begin{itemize}
 \item Input: a file containing \emph{n} lines with space-separated integers:
-  \newline \texttt{X F$_1$ F$_2$ ...}\newline where
-  \texttt{F$_i$} are the friends of user
+  \newline \texttt{X F$_1$ F$_2$ ...}\newline where the
+  \texttt{F$_i$} are the ids of the friends of user
   \texttt{X}. For instance: \textfile{pymk/data-small.txt}
-\item Output: a file containing \emph{n} lines in the following format:
-  \texttt{X R$_1$(n$_1$) R$_2$(n$_2$) R$_3$(n$_3$) ...} where \texttt{R$_i$} are the ids of the friends recommended to user \texttt{X} and $n_i$
-  is the number of friends in common between \texttt{X} and
-  \texttt{R$_i$}. Recommended friends \texttt{R$_i$} must be ordered by
-  decreasing values of \texttt{n$_i$}.
+\item Output: a file containing \emph{n} lines in the following
+  format:\newline \texttt{X R$_1$(n$_1$) R$_2$(n$_2$) R$_3$(n$_3$)
+    ...}\newline where \texttt{R$_i$} are the ids of the friends
+  recommended to user \texttt{X} and $n_i$ is the number of friends in
+  common between \texttt{X} and \texttt{R$_i$}. Recommended friends
+  \texttt{R$_i$} must be ordered by decreasing values of
+  \texttt{n$_i$} and they must not be friends of \texttt{X}. For
+  instance: \textfile{pymk/output-pymk-1/part-r-00000}
 \end{itemize}
 
 The following sections will guide you through a possible
-implementation of such an algorithm. Feel free to follow your own
+implementation. Feel free to follow your own
 thread if you have any idea how to implement it: you may find a
 better solution than the one proposed!
 
@@ -176,14 +183,14 @@ The basic idea of our initial implementation is the following:
   \item Receive (\_,v): \texttt{\_, X F$_1$ F$_2$ ... F$_k$}
   \item Emit (k,v): \texttt{F$_i$},\texttt{F$_j$} where $i \in [1,k]$, $j \in [1,k]$ and $i \neq j$.
   \end{itemize}
-  In other words, \texttt{(a,b)} \emph{and} \texttt{(b,a)} are emitted every time a friend common to user \texttt{a} and user \texttt{b} is found. The following key-value pairs are emitted in response to the input example above:
+  In other words, \texttt{(a,b)} \emph{and} \texttt{(b,a)} are emitted every time a friend common to user \texttt{a} and user \texttt{b} is found. The following key-value pairs are emitted in response to the input example above (order may of course vary):
   \textfile{pymk/emitted.txt}
 \item Reduce step:
   \begin{itemize}
   \item Receive (k, [v]): \texttt{X, [ F$_1$, F$_2$
-    ... ]} \newline In this list the \texttt{F$_i$}s are not
+    ... ]} \newline In this list the \texttt{F$_i$} are not
     unique: instead, \texttt{F$_i$} appears exactly \texttt{x} times
-    when users \texttt{X} and \texttt{F$_i$} have \texttt{x}
+    when user \texttt{X} and user \texttt{F$_i$} have \texttt{x}
     friends in common. For instance, the following key-value pairs are received in our example:
     \textfile{pymk/received.txt}
   \item Emit (k, v): \texttt{X, "F$_1$(n$_1$) F$_2$(n$_2$) ..."}\newline
@@ -193,11 +200,11 @@ The basic idea of our initial implementation is the following:
 
 \section{First implementation}
 
-Implement the algorithm described above. Make sure that it produces
-the correct result using the example above. Then, test your
-implementation on larger networks by generating input files using a
-program such
- as \href{https://github.com/glatard/big-data-analytics-course/raw/master/labs/pymk/generate.py}{\texttt{generate.py}}.
+Implement the algorithm described in the previous section. Make sure
+that it produces the correct result on the example above. Then, test
+your implementation on larger networks by generating input files using
+a program such as
+\href{https://github.com/glatard/big-data-analytics-course/raw/master/labs/pymk/generate.py}{\texttt{generate.py}}.
 
 Here is a possible solution:
 \javacode{pymk/Pymk.java}
@@ -266,7 +273,7 @@ and output of the algorithm will be as follows:
   \texttt{X} and $n_i$ is the number of followed people in common
   between \texttt{X} and \texttt{R$_i$}. Recommended people
   \texttt{R$_i$} \textbf{must not} be followed by \texttt{X} and \textbf{must} be
-  ordered by decreasing values of \texttt{n$_i$}. On the previous example: \textfile{wtf/output-wtf-counter/part-r-00000}.
+  ordered by decreasing values of \texttt{n$_i$}. On the previous example: \textfile{wtf/output-wtf-counter/part-r-00000}
 \end{itemize}
 
 \section{Basic idea}
@@ -320,8 +327,8 @@ section~\ref{sec:goal-wtf} as well as on undisclosed evaluation
 data. Marking will be as follows:
 \begin{itemize}
 \item 10\%: Program compiles (if relevant) and MapReduce job(s) run to completion without crashing.
-\item 35\%: MapReduce job(s) produce correct output on test data (see example above).
-\item 35\%: MapReduce job(s) produce correct output on evaluation data (undisclosed).
+\item 20\%: MapReduce job(s) produce correct output on test data (see example above).
+\item 50\%: MapReduce job(s) produce correct output on evaluation data (undisclosed).
 \item 10\%: Program is easy to read and understand.
 \item 10\%: Git commit history is available and shows frequent commits.
 \end{itemize}
