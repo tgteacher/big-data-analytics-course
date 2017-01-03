@@ -212,11 +212,12 @@ Here is a possible solution:
 \section{Filtering existing friends}
 
 There is a problem with the previous implementation as it may
-recommend to user X people that are already friend with X. For
-instance, in the example above, user \texttt{3} is recommended to user
-\texttt{1} although \texttt{1} and \texttt{3} are already friends. We
-need to somehow emit key-value pairs containing the friends of user
-\texttt{i}, to address this issue.  Here is a possible solution:
+recommend to user \texttt{X} people that are already friend with
+\texttt{X}. For instance, in the example above, user \texttt{3} is
+recommended to user \texttt{1} although \texttt{1} and \texttt{3} are
+already friends. We need to somehow emit key-value pairs containing
+the friends of user \texttt{i}, to address this issue.  Here is a
+possible solution:
 \begin{itemize}
 \item Map step:
   \begin{itemize}
@@ -224,15 +225,19 @@ need to somehow emit key-value pairs containing the friends of user
   \item Emit (k,v):
     \begin{itemize}
     \item \texttt{F$_i$},\texttt{F$_j$} where $i \in [1,k]$, $j \in [1,k]$ and $i \neq j$.
-    \item \texttt{X}, \color{red}\textbf{-}\color{black}\texttt{F$_i$} for all $i \in [1,k]$ 
+    \item \texttt{X}, \color{red}\textbf{-}\color{black}\texttt{F$_i$} for all $i \in [1,k]$ (note the \texttt{-} sign). 
     \end{itemize}
-    (Note the \texttt{-} sign). For instance, in the example above: \textfile{pymk/emitted-1.txt}
+    For instance, in the example above: \textfile{pymk/emitted-1.txt}
   \end{itemize}
 \item Reduce step:
   \begin{itemize}
   \item Receive (k, [v]): \texttt{X, [ F$_1$, F$_2$, ... ]} \newline
     
-    If \texttt{F$_i$} is negative then it is a friend of user \texttt{X}. Otherwise, it is a user who has friends in common with \texttt{X}. In our example:
+    If \texttt{F$_i$} is negative then it is a friend of user
+    \texttt{X} and all occurrences of -\texttt{F$_i$} in the values
+    must be removed. Otherwise, \texttt{F$_i$} is a user who has
+    friends in common with \texttt{X} and its number of occurrences
+    must be counted as before. In our example:
     \textfile{pymk/received-1.txt}
   \item Emit (k, v): \texttt{X, "F$_1$(n$_1$) F$_2$(n$_2$)
     ..."}\newline where \texttt{F$_i$} appeared exactly \texttt{$n_i$}

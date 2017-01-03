@@ -17,29 +17,37 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Pymk1 {
 
+    /**
+     * *****************
+     */
+    /**
+     * Mapper      *
+     */
+    /**
+     * *****************
+     */
     public static class AllPairsMapper extends Mapper<Object, Text, IntWritable, IntWritable> {
 
-        // Emits (a,b) *and* (b,a) any time a friend common to a and b is found.
         public void map(Object key, Text values, Context context) throws IOException, InterruptedException {
-            // First emit all the friends of the user
             StringTokenizer st = new StringTokenizer(values.toString());
-            Integer userId = Integer.parseInt(st.nextToken());
-            IntWritable user = new IntWritable(userId);
-            IntWritable friend1 = new IntWritable();
+            IntWritable user = new IntWritable(Integer.parseInt(st.nextToken()));
+            // 'friends' will store the list of friends of user 'user'
             ArrayList<Integer> friends = new ArrayList<>();
-            // Walk through the friends in the input text
-            while(st.hasMoreTokens()){
-                // Emit a key-value pair for every friend found, where the value
-                // is the opposite of the friend id
+            // First, go through the list of all friends of user 'user' and emit 
+            // (user,-friend)
+            // 'friend1' will be used in the emitted pair
+            IntWritable friend1 = new IntWritable();
+            while (st.hasMoreTokens()) {
                 Integer friend = Integer.parseInt(st.nextToken());
                 friend1.set(-friend);
-                context.write(user,friend1);
-                // Save the friend id for later
-                friends.add(friend);
+                context.write(user, friend1);
+                friends.add(friend); // save the friends of user 'user' for later
             }
-            // Will store the friends we've already seen as we walk through the list of friends
-            ArrayList<Integer> seenFriends = new ArrayList<>(); 
-            // The elements in the pairs that will be emitted.
+            // Now we can emit all (a,b) and (b,a) pairs
+            // where a!=b and a & b are friends of user 'user'.
+            // We use the same algorithm as before.
+            ArrayList<Integer> seenFriends = new ArrayList<>();
+            // The element in the pairs that will be emitted.
             IntWritable friend2 = new IntWritable();
             for (Integer friend : friends) {
                 friend1.set(friend);
@@ -51,18 +59,19 @@ public class Pymk1 {
                 seenFriends.add(friend1.get());
             }
         }
-
     }
 
     public static class CountReducer extends Reducer<IntWritable, IntWritable, IntWritable, Text> {
 
-        // Models a recommendation. A recommendation has a friend
-        // id and a number of friends in common.
+        // A private class to describe a recommendation.
+        // A recommendation has a friend id and a number of friends in common.
         private static class Recommendation {
 
+            // Attributes
             private int friendId;
             private int nCommonFriends;
 
+            // Constructor
             public Recommendation(int friendId) {
                 this.friendId = friendId;
                 // A recommendation must have at least 1 common friend
@@ -70,7 +79,6 @@ public class Pymk1 {
             }
 
             // Getters
-            
             public int getFriendId() {
                 return friendId;
             }
@@ -79,17 +87,17 @@ public class Pymk1 {
                 return nCommonFriends;
             }
 
-            // 
-            
+            // Other methods
+            // Increments the number of common friends
             public void addCommonFriend() {
                 nCommonFriends++;
             }
-            
+
             // String representation used in the reduce output            
             public String toString() {
-                return friendId+"("+nCommonFriends+")";
+                return friendId + "(" + nCommonFriends + ")";
             }
-            
+
             // Finds a representation in an array
             public static Recommendation find(int friendId, ArrayList<Recommendation> recommendations) {
                 for (Recommendation p : recommendations) {
@@ -97,36 +105,42 @@ public class Pymk1 {
                         return p;
                     }
                 }
+                // Recommendation was not found!
                 return null;
             }
-
         }
 
-       
+        // The reduce method       
         public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
             IntWritable user = key;
-            // Filter out the friends of key in values
-            ArrayList<Integer> friendsOfKey = new ArrayList();
-            ArrayList<Integer> filteredValues = new ArrayList<>();
-            while (values.iterator().hasNext()){
+            // 'existingFriends' will store the friends of user 'user'
+            // (the negative values in 'values').
+            ArrayList<Integer> existingFriends = new ArrayList();
+            // 'recommendedUsers' will store the list of user ids recommended
+            // to user 'user'
+            ArrayList<Integer> recommendedUsers = new ArrayList<>();
+            while (values.iterator().hasNext()) {
                 int value = values.iterator().next().get();
-                if(value>0)
-                    filteredValues.add(value);
-                else
-                    friendsOfKey.add(value);
+                if (value > 0) {
+                    recommendedUsers.add(value);
+                } else {
+                    existingFriends.add(value);
+                }
             }
-            for(Integer friend : friendsOfKey ){
-                filteredValues.removeIf(new Predicate<Integer>() {
+            // 'recommendedUsers' now contains all the positive values in 'values'.
+            // We need to remove from it every value -x where x is in existingFriends.
+            // See javadoc on Predicate: https://docs.oracle.com/javase/8/docs/api/java/util/function/Predicate.html
+            for (Integer friend : existingFriends) {
+                recommendedUsers.removeIf(new Predicate<Integer>() {
                     @Override
                     public boolean test(Integer t) {
                         return t.intValue() == -friend.intValue();
                     }
                 });
-                
             }
             ArrayList<Recommendation> recommendations = new ArrayList<>();
             // Builds the recommendation array
-            for(Integer userId : filteredValues){
+            for (Integer userId : recommendedUsers) {
                 Recommendation p = Recommendation.find(userId, recommendations);
                 if (p == null) {
                     recommendations.add(new Recommendation(userId));
@@ -146,7 +160,7 @@ public class Pymk1 {
             StringBuffer sb = new StringBuffer(""); // Using a StringBuffer is more efficient than concatenating strings
             for (int i = 0; i < recommendations.size() && i < 10; i++) {
                 Recommendation p = recommendations.get(i);
-                sb.append(p.toString()+" ");
+                sb.append(p.toString() + " ");
             }
             Text result = new Text(sb.toString());
             context.write(user, result);
