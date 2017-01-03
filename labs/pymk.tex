@@ -164,12 +164,12 @@ algorithm will be as follows:
     ...}\newline where \texttt{R$_i$} are the ids of the friends
   recommended to user \texttt{X} and $n_i$ is the number of friends in
   common between \texttt{X} and \texttt{R$_i$}. Recommended friends
-  \texttt{R$_i$} must be ordered by decreasing values of
-  \texttt{n$_i$} and they must not be friends of \texttt{X}. For
+  \texttt{R$_i$} \textbf{must be} ordered by decreasing values of
+  \texttt{n$_i$} and they \textbf{must not} be friends of \texttt{X}. For
   instance: \textfile{pymk/output-pymk-1/part-r-00000}
 \end{itemize}
 
-The following sections will guide you through a possible
+The following Sections will guide you through a possible
 implementation. Feel free to follow your own
 thread if you have any idea how to implement it: you may find a
 better solution than the one proposed!
@@ -200,7 +200,7 @@ The basic idea of our initial implementation is the following:
 
 \section{First implementation}
 
-Implement the algorithm described in the previous section. Make sure
+Implement the algorithm described in the previous Section. Make sure
 that it produces the correct result on the example above. Then, test
 your implementation on larger networks by generating input files using
 a program such as
@@ -273,7 +273,7 @@ and output of the algorithm will be as follows:
   \texttt{F$_i$} are followed by user
   \texttt{X}. For instance: \textfile{wtf/data-small.txt}
 \item Output: A file containing \emph{n} lines in the following
-  format: \texttt{X R$_1$(n$_1$) R$_2$(n$_2$) R$_3$(n$_3$) ...} where
+  format: \newline \texttt{X R$_1$(n$_1$) R$_2$(n$_2$) R$_3$(n$_3$) ...}\newline where
   \texttt{R$_i$} are the ids of the people recommended to user
   \texttt{X} and $n_i$ is the number of followed people in common
   between \texttt{X} and \texttt{R$_i$}. Recommended people
@@ -292,50 +292,83 @@ asymmetrical, this requires two MapReduce jobs:
   \item Indexing: for each user \texttt{F$_i$} followed by user
     \texttt{X}, the mapper emits \texttt{F$_i$} as the key and \texttt{X}
     as the value. The reducer is the identity. It produces inverted
-    lists of followers \texttt{X}, [ \texttt{Y$_1$}, \texttt{Y$_2$},
-    \texttt{...} , \texttt{Y$_k$} ] where the Y$_i$ all follow user
+    lists of followers: \newline \texttt{X}, [ \texttt{Y$_1$}, \texttt{Y$_2$},
+    \texttt{...} , \texttt{Y$_k$} ]\newline where the Y$_i$ all follow user
     \texttt{X}.
   \item Similarity: for each inverted list \texttt{X}, [
     \texttt{Y$_1$}, \texttt{Y$_2$}, \texttt{...}, \texttt{Y$_k$} ] the
-    mapper emits all pairs (\texttt{Y$_i$},\texttt{Y$_j$}) and (\texttt{Y$_j$},\texttt{Y$_i$}) where $i
-    \in [1,k]$, $j \in [1,k]$ and $i \neq j$. As in ``People You May
-    Know'', the reducer receives a list \texttt{X, [ U$_1$, U$_2$,
-        ... ]} where U$_i$ appears exactly \texttt{x} times if
-    \texttt{X} and \texttt{U$_i$} follow \texttt{x} people in common.
+    mapper emits all pairs (\texttt{Y$_i$},\texttt{Y$_j$}) and
+    (\texttt{Y$_j$},\texttt{Y$_i$}) where $i \in [1,k]$, $j \in [1,k]$
+    and $i \neq j$. As in ``People You May Know'', the reducer
+    receives a list \texttt{X}, [ \texttt{F$_1$, F$_2$, ...} ] where
+    F$_i$ appears exactly \texttt{x} times if \texttt{X} and
+    \texttt{F$_i$} follow \texttt{x} people in common. It counts the
+    occurrences of \texttt{F$_i$} whenever \texttt{F$_i$} is not
+    followed by \texttt{X} and sorts the resulting recommendations by
+    number of common followed people.
 \end{enumerate}
 
 To filter the list of suggested people from followed people, you can
 use the same kind of trick as for ``People You May Know'', using
-negative integers to keep track of followed people.
+negative integers.
 
 \section{Assignment}
 
-Write a MapReduce program that implements the basic ``Who To Follow'' system
-described in section~\ref{sec:goal-wtf}. You may:
+Write a MapReduce program that implements a basic ``Who To Follow'' system
+fulfilling the requirements described in Section~\ref{sec:goal-wtf}. You may:
 \begin{itemize}
 \item Follow the
   idea in~\ref{sec:idea-wtf} or your own idea.
-\item Use Java or any other programming
-  language.
+\item Use Java or any other programming language (using Hadoop
+  Streaming).
 \end{itemize}
 You must:
 \begin{itemize}
-\item Include a README file explaining how to compile (if
-  relevant) and run your program on the test data.
-\item Use Git to track your development. Your commit history will be
+\item Make sure that your program will work on Linux.
+\item Include a README file explaining how to compile (if relevant)
+  your program, how to run it and where to find the results. Mention all the
+  requirements, e.g., the version of Java required.
+\item Use Git to track your developments. Your commit history will be
   checked and frequent commits showing incremental development will be
   favored over monolithic ones.
 \end{itemize}
 
-Your program will be tested on the example data shown in
-section~\ref{sec:goal-wtf} as well as on undisclosed evaluation
-data. Marking will be as follows:
+Your program will be tested on the example data of
+Section~\ref{sec:goal-wtf} as well as on undisclosed evaluation
+data generated with \href{https://github.com/glatard/big-data-analytics-course/raw/master/labs/wtf/generate.py}{\texttt{generate.py}}. Marking will be as follows:
 \begin{itemize}
-\item 10\%: Program compiles (if relevant) and MapReduce job(s) run to completion without crashing.
-\item 20\%: MapReduce job(s) produce correct output on test data (see example above).
+\item 10\%: Program compiles (if relevant) and MapReduce job(s) run to completion.
+  \begin{itemize}
+  \item Program doesn't compile or crashes: 0\%.
+  \item Program compiles and completes successfully: 10\%.
+  \end{itemize}
+\item 20\%: MapReduce job(s) produce correct output on Section~\ref{sec:goal-wtf}'s data.
+  \begin{itemize}
+  \item Recommendations are incorrect: 0\%.
+  \item Recommendations contain followed people
+    or are not correctly sorted: 10\%.
+  \item Output is correct: 20\%.
+  \end{itemize}
 \item 50\%: MapReduce job(s) produce correct output on evaluation data (undisclosed).
+  \begin{itemize}
+  \item Recommendations are incorrect: 0\%.
+  \item Recommendations contain followed people
+    or are not correctly sorted: 25\%.
+  \item Output is correct: 50\%.
+  \end{itemize}
 \item 10\%: Program is easy to read and understand.
+  \begin{itemize}
+  \item It takes more than 15 minutes to understand: 0\%.
+  \item It takes more than 10 minutes to understand: 5\%.
+  \item It takes less than 10 minutes to understand: 10\%.
+  \end{itemize}
 \item 10\%: Git commit history is available and shows frequent commits.
+  \begin{itemize}
+  \item Commit history is not available: 0\%.
+  \item Commit history is available but shows only a few large commits: 5\%.
+  \item Commit history is available and demonstrates frequent commits
+    showing incremental development steps: 10\%.
+  \end{itemize}
 \end{itemize}
 
 
