@@ -50,7 +50,7 @@ if __name__ == "__main__":
         x.append(clusters[cluster][0]+x_delta)
         y.append(clusters[cluster][1]+y_delta)
         points_clusters.append(cluster)
-        print x[-1],y[-1],points_clusters[-1]
+        print x[-1],y[-1]
         
     if display:
         plt.plot(x, y, 'ro')
