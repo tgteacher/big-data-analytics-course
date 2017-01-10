@@ -95,7 +95,7 @@
 
 \title{\textsc{Big Data Analytics (SOEN 498/691)} \\ Laboratory sessions}
 
-\author{Tristan Glatard\\Department of Computer Science and Software Engineering\\Concordia University, Montreal\\\href{mailto:tristan.glatard@concordia.ca}{tristan.glatard@concordia.ca}}
+\author{Tristan Glatard, Valerie Hayot-Sasson\\Department of Computer Science and Software Engineering\\Concordia University, Montreal\\\href{mailto:tristan.glatard@concordia.ca}{tristan.glatard@concordia.ca}, \href{mailto:valeriehayot@gmail.com}{valeriehayot@gmail.com}}
 
 \begin{document}
 
@@ -248,7 +248,7 @@ Download Hadoop release 2.7.3 from one of the
   $ tar xf hadoop-2.7.3.tar.gz
   $ export HADOOP=$PWD/hadoop-2.7.3
 \end{cli}
-Edit \texttt{etc/hadoop/hadoop-env.sh} and define the path to your Java installation:
+Edit \texttt{\$HADOOP/etc/hadoop/hadoop-env.sh} and define the path to your Java installation:
 \begin{cli}
   export JAVA_HOME=/path/to/your/java/installation/
 \end{cli}
@@ -264,7 +264,7 @@ Run a first example:
 \begin{cli}
   $ mkdir input
   # creates a test file containing integers from 1 to 1000
-  $ for i in `seq 1 1000`; do echo $i >> input/file.txt ; done 
+  $ for i in $(seq 1 1000); do echo $i >> input/file.txt ; done 
   $ hadoop jar ${HADOOP}/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.3.jar grep input output 1
   $ cat output/*
 \end{cli}
@@ -398,7 +398,7 @@ If the ssh command prompts for a password, create a password-less ssh key and au
 
 \subsection{Configuration}
 
-Configure the HDFS by adding the following to \texttt{etc/hadoop/core-site.xml}:
+Configure the HDFS by adding the following to \texttt{\$HADOOP/etc/hadoop/core-site.xml}:
 \begin{xml}
 <configuration>
     <property>
@@ -412,7 +412,7 @@ Configure the HDFS by adding the following to \texttt{etc/hadoop/core-site.xml}:
   </property>
 </configuration>
 \end{xml}
-and to \texttt{etc/hadoop/hdfs-site.xml}:
+and to \texttt{\$HADOOP/etc/hadoop/hdfs-site.xml}:
 \begin{xml}
 <configuration>
     <property>
@@ -490,7 +490,7 @@ system used in pseudo-distributed mode.
 
 \subsection{Configuration}
 
-Edit \texttt{etc/hadoop/mapred-site.xml} to add the following configuration properties:
+Edit \texttt{\$HADOOP/etc/hadoop/mapred-site.xml} to add the following configuration properties:
 \begin{xml}
   <configuration>
     <property>
@@ -499,7 +499,7 @@ Edit \texttt{etc/hadoop/mapred-site.xml} to add the following configuration prop
     </property>
   </configuration>
 \end{xml}
-Edit \texttt{etc/hadoop/yarn-site.xml} to add the following configuration properties:
+Edit \texttt{\$HADOOP/etc/hadoop/yarn-site.xml} to add the following configuration properties:
 \begin{xml}
   <configuration>
     <property>
