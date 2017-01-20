@@ -266,7 +266,7 @@ Run a first example:
   # creates a test file containing integers from 1 to 1000
   $ for i in $(seq 1 1000); do echo $i >> input/file.txt ; done 
   $ hadoop jar ${HADOOP}/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.3.jar grep \
-                                                                input output [0-9]*1[0-9]*
+                                                                                 input output .*1.*
   $ cat output/*
 \end{cli}
 This program prints the lines of the input file that contain the
