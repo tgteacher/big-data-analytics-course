@@ -9,7 +9,7 @@ os.environ["PYSPARK_DRIVER_PYTHON"] = "ipython"
 # Created by TeamZero on 23/01/20.
 # input: inputs/ralational-algebra-op-input/
 # output: spark-output/ralational-algebra-op-out/union
-# local -> file:/home/arezou/Desktop/spark-examples/inputs/ralational-algebra-op-input/
+# local -> file:/home/arz/Desktop/spark-examples/inputs/ralational-algebra-op-input/
 # hadoop -> hdfs://namenode:port/[file address]
 # use same pattern for output
 

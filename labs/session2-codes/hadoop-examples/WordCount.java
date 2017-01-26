@@ -16,7 +16,7 @@ import java.util.StringTokenizer;
  * Created by TeamZero on 19/01/17.
  * input: inputs/word-count-input
  * output: hadoop-output/word-count-out/
- * local -> file:/home/arezou/Desktop/hadoop-examples/inputs/word-count-input
+ * local -> file:/home/arz/Desktop/hadoop-examples/inputs/word-count-input
  * hadoop -> hdfs://namenode:port/[file address]
  * use same pattern for output
  */

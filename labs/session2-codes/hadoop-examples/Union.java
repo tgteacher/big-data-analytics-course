@@ -13,7 +13,7 @@ import java.io.IOException;
  * Created by TeamZero on 19/01/18.
  * input: inputs/ralational-algebra-op-input/
  * output: hadoop-output/ralational-algebra-op-out/union
- * local -> file:/home/arezou/Desktop/hadoop-examples/inputs/ralational-algebra-op-input/
+ * local -> file:/home/arz/Desktop/hadoop-examples/inputs/ralational-algebra-op-input/
  * hadoop -> hdfs://namenode:port/[file address]
  * use same pattern for output
  */
