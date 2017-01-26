@@ -1,0 +1,10 @@
+*~
+*.aux
+*.bbl
+*.blg
+*.class
+*.jar
+*.log
+*.out
+*.toc
+labs.pdf
