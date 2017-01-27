@@ -31,7 +31,7 @@ public class InvertedIndex {
             String filename = fileSplit.getPath().getName();
             while (itr.hasMoreTokens()){
                 word.set(itr.nextToken());
-                doc_name.set(key.toString());
+                doc_name.set(filename);
                 context.write(word, doc_name);
             }
         }
