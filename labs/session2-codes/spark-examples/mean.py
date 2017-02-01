@@ -6,15 +6,17 @@ os.environ["SPARK_HOME"] = "/usr/local/spark"
 os.environ["PYSPARK_PYTHON"] = "python3"
 os.environ["PYSPARK_DRIVER_PYTHON"] = "ipython"
 
-# Created by TeamZero on 23/01/23.
-# input: inputs/mean-input/
-# output: spark-output/mean-out/
-# local -> file:/home/mojtaba/Desktop/spark-examples/inputs/mean-input/
-# hadoop -> hdfs://namenode:port/[file address]
-# use same pattern for output
-
 
 def main(argv):
+    """
+    Created by TeamZero on 23/01/23.
+    input: inputs/mean-input/
+    output: spark-output/mean-out/
+    local -> file:/home/mojtaba/Desktop/spark-examples/inputs/mean-input/
+    hadoop -> hdfs://namenode:port/[file address]
+    use same pattern for output
+    :param argv: first is input and second is output address
+    """
     conf = SparkConf().setMaster('local').setAppName('word count')
     sc = SparkContext(conf=conf)
     files = sc.textFile(sys.argv[1])
