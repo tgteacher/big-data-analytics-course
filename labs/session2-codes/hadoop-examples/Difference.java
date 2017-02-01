@@ -1,12 +1,9 @@
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 import java.util.*;
@@ -15,9 +12,12 @@ import java.util.*;
  * Created by TeamZero on 23/01/20.
  * input: inputs/ralational-algebra-op-input/
  * output: hadoop-output/ralational-algebra-op-out/difference/
+ * table name: employee
  * local -> file:/home/mojtaba/Desktop/hadoop-examples/inputs/ralational-algebra-op-input/
  * hadoop -> hdfs://namenode:port/[file address]
  * use same pattern for output
+ * this program compute the difference based on year attribute from selected table which is defined as third argument of main method
+ * SELECT year from employee WHERE year NOT IN (SELECT year from other_tables)
  */
 public class Difference {
 
@@ -26,8 +26,7 @@ public class Difference {
         private Text attribute = new Text();
         @Override
         protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            FileSplit fileSplit = (FileSplit)context.getInputSplit();
-            String table = fileSplit.getPath().getName();
+            String table = Common.getTableName(context);
             StringTokenizer itr = new StringTokenizer(value.toString(), ",");
             String year = itr.nextToken().trim();
             attribute.set(year);
@@ -44,34 +43,25 @@ public class Difference {
             for(Text doc_name: values){
                 documents.add(doc_name.toString());
             }
-            Set<String> tables = convertSetToNormalString(documents);
-            if(tables.size() == 1 && tables.contains("employee")){
-                result.set("employee");
+            Configuration conf = context.getConfiguration();
+            String tbl_name = conf.get("table_name");
+            if(documents.size() == 1 && documents.contains(tbl_name)){
+                result.set(tbl_name);
                 context.write(key, result);
             }
         }
-        private static Set<String> convertSetToNormalString(Set<String> documents){
-            Set<String> result = new HashSet<>();
-            Iterator<String> itr = documents.iterator();
-            while(itr.hasNext()){
-                result.add(itr.next());
-            }
-            return result;
-        }
     }
 
+    /**
+     * @param args input address, output address, and selected table name(we used "employee" for testing)
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "difference");
-        job.setJarByClass(Difference.class);
-        job.setMapperClass(DifferenceMapper.class);
-        job.setReducerClass(DifferenceReducer.class);
-        job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(Text.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        conf.set("table_name", args[2]);
+        Common.jobRunner(conf, "difference", Difference.class, DifferenceMapper.class, DifferenceReducer.class, null,
+                Text.class, Text.class, Text.class, Text.class, new Path(args[0]), new Path(args[1]));
     }
 }

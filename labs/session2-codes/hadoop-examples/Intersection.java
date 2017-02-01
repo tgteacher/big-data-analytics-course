@@ -21,6 +21,7 @@ import java.util.StringTokenizer;
  * local -> file:/home/mojtaba/Desktop/hadoop-examples/inputs/ralational-algebra-op-input/
  * hadoop -> hdfs://namenode:port/[file address]
  * use same pattern for output
+ * this program compute the intersection based on year attribute between all documents or tables which is accessible with input argument
  */
 public class Intersection {
     public static class IntersectionMapper extends Mapper<Object, Text, Text, Text>{
@@ -28,8 +29,7 @@ public class Intersection {
         private Text attribute = new Text();
         @Override
         protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            FileSplit fileSplit = (FileSplit)context.getInputSplit();
-            String table = fileSplit.getPath().getName();
+            String table = Common.getTableName(context);
             StringTokenizer itr = new StringTokenizer(value.toString(), ",");
             String year = itr.nextToken().trim();
             attribute.set(year);
@@ -46,33 +46,27 @@ public class Intersection {
             for(Text doc_name: values){
                 documents.add(doc_name.toString());
             }
-            Set<String> tables = convertSetToNormalString(documents);
-            if(tables.size() == 3){
+            Configuration conf = context.getConfiguration();
+            int tables_count = Integer.parseInt(conf.get("tables_count"));
+            if(documents.size() == tables_count){
                 context.write(key, key);
             }
         }
-        private static Set<String> convertSetToNormalString(Set<String> documents){
-            Set<String> result = new HashSet<>();
-            Iterator<String> itr = documents.iterator();
-            while(itr.hasNext()){
-                result.add(itr.next());
-            }
-            return result;
-        }
     }
 
+    /**
+     *
+     * @param args, first is input, second is output, and third is the number of
+     *              table which you have in input address(we have "3" tables in our input folder)
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "intersection");
-        job.setJarByClass(Intersection.class);
-        job.setMapperClass(Intersection.IntersectionMapper.class);
-        job.setReducerClass(Intersection.IntersectionReducer.class);
-        job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(Text.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        conf.set("tables_count", args[2]);
+        Common.jobRunner(conf, "intersection", Intersection.class, IntersectionMapper.class, IntersectionReducer.class, null,
+                Text.class, Text.class, Text.class, Text.class, new Path(args[0]), new Path(args[1]));
+
     }
 }

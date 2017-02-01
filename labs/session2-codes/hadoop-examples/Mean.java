@@ -48,19 +48,15 @@ public class Mean {
             context.write(key, result);
         }
     }
-
+    /**
+     * @param args first is input and second is output address
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "mean");
-        job.setJarByClass(Difference.class);
-        job.setMapperClass(MeanMapper.class);
-        job.setReducerClass(MeanReducer.class);
-        job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(IntWritable.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(DoubleWritable.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        Common.jobRunner(conf, "mean", Mean.class, MeanMapper.class, MeanReducer.class, null,
+                Text.class, IntWritable.class, Text.class, DoubleWritable.class, new Path(args[0]), new Path(args[1]));
     }
 }

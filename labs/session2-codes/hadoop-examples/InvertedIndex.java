@@ -61,20 +61,16 @@ public class InvertedIndex {
         }
     }
 
+    /**
+     * @param args first is input and second is output address
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "inverted index");
-        job.setJarByClass(WordCount.class);
-        job.setMapperClass(TokenizerMapper.class);
-        job.setCombinerClass(InvertedReducer.class);
-        job.setReducerClass(InvertedReducer.class);
-        job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(Text.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        Common.jobRunner(conf, "inverted index", InvertedIndex.class, TokenizerMapper.class, InvertedReducer.class, InvertedReducer.class,
+                Text.class, Text.class, Text.class, Text.class, new Path(args[0]), new Path(args[1]));
     }
 
 }
