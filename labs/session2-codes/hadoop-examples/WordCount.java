@@ -16,7 +16,7 @@ import java.util.StringTokenizer;
  * Created by TeamZero on 19/01/17.
  * input: inputs/word-count-input
  * output: hadoop-output/word-count-out/
- * local -> file:/home/arz/Desktop/hadoop-examples/inputs/word-count-input
+ * local -> file:/home/arezou/Desktop/hadoop-examples/inputs/word-count-input
  * hadoop -> hdfs://namenode:port/[file address]
  * use same pattern for output
  */
@@ -50,18 +50,16 @@ public class WordCount {
         }
     }
 
+    /**
+     * @param args first is input and second is output address
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "word count");
-        job.setJarByClass(WordCount.class);
-        job.setMapperClass(TokenizerMapper.class);
-        job.setCombinerClass(SumReducer.class);
-        job.setReducerClass(SumReducer.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        Common.jobRunner(conf, "word count", WordCount.class, TokenizerMapper.class, SumReducer.class,
+                SumReducer.class, Text.class, IntWritable.class, Text.class, IntWritable.class, new Path(args[0]), new Path(args[1]));
     }
 
 }

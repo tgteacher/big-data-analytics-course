@@ -13,9 +13,11 @@ import java.io.IOException;
  * Created by TeamZero on 19/01/18.
  * input: inputs/ralational-algebra-op-input/users
  * output: hadoop-output/ralational-algebra-op-out/projection/
- * local -> file:/home/arz/Desktop/hadoop-examples/inputs/ralational-algebra-op-input/users
+ * local -> file:/home/arezou/Desktop/hadoop-examples/inputs/ralational-algebra-op-input/users
  * hadoop -> hdfs://namenode:port/[file address]
  * use same pattern for output
+ * this program compute the projection based on month attribute
+ * SELECT DISTINCT month from tableName
  */
 public class Projection {
     public static class ProjectionMapper extends Mapper<Object, Text, Text, Text>{
@@ -37,19 +39,15 @@ public class Projection {
         }
     }
 
+    /**
+     * @param args first is input and second is output address
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "projection");
-        job.setJarByClass(Projection.class);
-        job.setMapperClass(Projection.ProjectionMapper.class);
-        job.setCombinerClass(Projection.ProjectionReducer.class);
-        job.setReducerClass(Projection.ProjectionReducer.class);
-        job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(Text.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        Common.jobRunner(conf, "projection", Projection.class, ProjectionMapper.class, ProjectionReducer.class,
+                ProjectionReducer.class, Text.class, Text.class, Text.class, Text.class, new Path(args[0]), new Path(args[1]));
     }
 }
