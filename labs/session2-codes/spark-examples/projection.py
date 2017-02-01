@@ -6,15 +6,20 @@ os.environ["SPARK_HOME"] = "/usr/local/spark"
 os.environ["PYSPARK_PYTHON"] = "python3"
 os.environ["PYSPARK_DRIVER_PYTHON"] = "ipython"
 
-# Created by TeamZero on 23/01/22.
-# input: inputs/ralational-algebra-op-input/users
-# output: spark-output/ralational-algebra-op-out/projection/
-# local -> file:/home/arz/Desktop/spark-examples/inputs/ralational-algebra-op-input/users
-# hadoop -> hdfs://namenode:port/[file address]
-# use same pattern for output
-
 
 def main(argv):
+    """
+    Created by TeamZero on 23/01/22.
+    input: inputs/ralational-algebra-op-input/users
+    output: spark-output/ralational-algebra-op-out/projection/
+    local -> file:/home/arezou/Desktop/spark-examples/inputs/ralational-algebra-op-input/users
+    hadoop -> hdfs://namenode:port/[file address]
+    use same pattern for output
+    this program compute the projection based on month attribute
+    SELECT DISTINCT month from tableName
+    :param argv: first is input and second is output address
+    :return:
+    """
     conf = SparkConf().setMaster('local').setAppName('inverted index')
     sc = SparkContext(conf=conf)
     files = sc.textFile(sys.argv[1])
