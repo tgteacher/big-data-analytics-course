@@ -337,7 +337,7 @@ Hadoop Streaming as follows:
   -output output\
   -mapper ./mapper.sh\
   -reducer ./reducer.sh\
-  -file wordcount-reducer.sh -file wordcount-mapper.sh 
+  -file reducer.sh -file mapper.sh 
 \end{cli}
 Create a larger text file and run the program again. The number of
 mappers and reducers can be changed with the following options:
