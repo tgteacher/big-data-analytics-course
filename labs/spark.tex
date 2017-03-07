@@ -80,7 +80,7 @@
          \lstset{language=java,
            columns=fullflexible,
            backgroundcolor=\color{YellowGreen}}
-  \vspace*{-0.3cm}
+%  \vspace*{-0.3cm}
 %  \lstinputlisting{#1}
   \end{footnotesize}
 }
@@ -178,7 +178,7 @@ Make sure that the following example runs correctly:
 of the previous command line is \texttt{Command not found}, check your
 \texttt{PATH}.)
 
-\section{Preliminaries}
+\section{Resilient Distributed Datasets (RDD)}
 
 Spark programs can be written in Java, Scala, Python and R. Although
 we use Python in the remainder of this session, feel free to use any
@@ -243,8 +243,94 @@ The result of your first Spark program should appear in the shell!
 
 \section{WordCount}
 
-We will now implement the classical WordCount example that we had already
-implemented with MapReduce.
+We will now implement the classical WordCount example that we had
+already implemented with MapReduce. We will follow the same logic,
+i.e., our program will emit a \texttt{(w,1)} pair for every word found
+in the text file. Then, we will sum the \texttt{1}s associated with
+a given word \texttt{w}.
+
+First, let's create a simple two-line \texttt{test.txt} text file for testing:
+\begin{cli}
+  $ echo one two three two three three > test.txt
+  $ echo one two three >> test.txt
+\end{cli}
+
+The first step in the Spark program is to create an RDD from
+\texttt{test.txt} (this is done in \texttt{pyspark}:
+\begin{cli}
+  >>> lines = sc.textFile(``file://test.txt'')
+\end{cli}
+The RDD contains one element for every line in the text file. 
+
+Now we need to split every line in word, which we will do using the
+\texttt{flatMap} transformation.  \texttt{flatMap} is used when an
+element in the input RDD is mapped to an arbitrary number of elements
+(0 or more) in the output RDD. In our case, every line in the text
+file will be mapped to all the words in this line:
+\begin{cli}
+  >>> words=lines.flatMap(lambda x: x.split())
+\end{cli}
+RDD \texttt{words} now contains all the words in the dataset (or it
+will contain them when the program is evaluated, remember that Spark
+is lazy), which we can to convert to \texttt{(w,1)} pairs using a
+\texttt{map} transformation:
+\begin{cli}
+  >>> pairs=words.map(lambda x: (x,1))
+\end{cli}
+Finally, pairs need to be ``reduced'', i.e., they need to be grouped
+by their first elements and the corresponding \texttt{1}s must be
+summed up. This is done using the \texttt{reduceByKey} transformation:
+\begin{cli}
+  >>> counts=pairs.reduceByKey(lambda x,y: x+y)
+\end{cli}
+The function passed to \texttt{reduceByKey} is a binary
+operator that takes as argument two values from the key-value pairs
+and returns one. Besides, this function must be
+\underline{commutative} and \underline{associative}. 
+
+The word counts can now be printed using the \texttt{foreach} transformation:
+\begin{cli}
+  >>> def g(x):
+  ...   print x
+  >>> counts.foreach(lambda x: g(str(x[0])+'': ''+str(x[1]))
+\end{cli}
+Or they might be saved in a text file using the \texttt{saveAsTextFile} action:
+\begin{cli}
+  >>> counts.saveAsTextFile(``file:///tmp/counts'')
+\end{cli}
+
+Here is a complete version of WordCount in Spark:
+\pythoncode{spark/wordcount.py}
+
+To run this program, you will have to update your environment as follows:
+\begin{cli}
+  $ export PYTHONPATH=$PWD/spark-2.1.0-bin-without-hadoop/python
+  $ sudo pip install py4j
+\end{cli}
+
+The program is run as follows:
+\begin{cli}
+  $ ./wordcount.py file:///tmp/test.txt file:///tmp/counts
+\end{cli}
+
+Spark can transparently work with files stored on HDFS. Start your
+HDFS daemon, upload \texttt{test.txt} to HDFS and re-run the WordCount program:
+\begin{cli}
+  $ ./wordcount.py hdfs://test.txt file:///tmp/counts-hdfs
+\end{cli}
+
+\section{Going further}
+
+A complete list of transformations and actions is available in the
+\href{http://spark.apache.org/docs/latest/programming-guide.html}{Programming
+  Guide}. Examples are also available in Spark's
+\href{https://github.com/apache/spark}{Github repository}.
+
+Try re-implementing in Spark the kmeans clustering algorithm
+programmed in a
+\href{https://github.com/glatard/big-data-analytics-course/releases/download/0.7.3/kmeans.pdf}{previous
+  lab session} using MapReduce. A solution is available
+\href{https://github.com/apache/spark/tree/master/examples/src/main/python}{there}.
 
 \end{document}
 
