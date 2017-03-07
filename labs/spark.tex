@@ -1,0 +1,251 @@
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage[colorlinks]{hyperref}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{amsmath}
+
+% Colors
+\definecolor{mygray}{RGB}{235,235,235}
+
+% Margins
+\setlength{\topmargin}{-2cm}
+\setlength{\textwidth}{16.5cm}
+\setlength{\textheight}{24cm}
+\setlength{\evensidemargin}{0cm}
+\setlength{\oddsidemargin}{0cm}
+
+% Fix link colors
+\hypersetup{
+    colorlinks = true,
+    linkcolor=red,
+    citecolor=red,
+    urlcolor=blue,
+    linktocpage % so that page numbers are clickable in toc
+}
+
+
+% Code listings
+\lstset{
+  basicstyle=\ttfamily,
+  keywordstyle=\color{blue}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  commentstyle=\color{magenta}\ttfamily,
+  morecomment=[l][\color{magenta}]{\#}
+}
+
+
+\lstnewenvironment{cli}
+                  {\footnotesize
+                    \lstset{columns=fullflexible,
+                      language=bash,
+                      backgroundcolor=\color{mygray}
+                  }}
+{}
+
+\lstnewenvironment{xml}
+                  {\footnotesize
+                    \lstset{columns=fullflexible,
+                      language=XML,
+                      backgroundcolor=\color{Salmon},
+                      morekeywords={property,name,value,description,configuration}
+                  }}
+{}
+
+\newcommand{\bashcode}[1]{
+  \begin{footnotesize}
+  \par
+  \hfill \colorbox{SkyBlue}
+         {
+           \href{https://github.com/glatard/big-data-analytics-labs/raw/master/labs/#1}
+                {(\underline{Link to file})
+         }} \hfill
+         \lstset{language=bash,
+           columns=fullflexible,
+           backgroundcolor=\color{SkyBlue}}
+  \vspace*{-0.3cm}
+  \lstinputlisting{#1}
+  \end{footnotesize}
+}
+
+\newcommand{\pythoncode}[1]{
+  \begin{footnotesize}
+  \par
+  \hfill \colorbox{YellowGreen}
+         {\href{https://github.com/glatard/big-data-analytics-labs/raw/master/labs/#1}
+           {(\underline{Link to file})
+         }} \hfill
+         \lstset{language=java,
+           columns=fullflexible,
+           backgroundcolor=\color{YellowGreen}}
+  \vspace*{-0.3cm}
+%  \lstinputlisting{#1}
+  \end{footnotesize}
+}
+
+\newcommand{\textfile}[1]{
+  \begin{footnotesize}
+  \par
+  \hfill \colorbox{SkyBlue}
+         {\href{https://github.com/glatard/big-data-analytics-labs/raw/master/labs/#1}
+           {(\underline{Link to file})
+         }} \hfill
+         \lstset{columns=fullflexible,
+           backgroundcolor=\color{SkyBlue}}
+  \vspace*{-0.3cm}
+  \lstinputlisting{#1}
+  \end{footnotesize}
+}
+
+
+% Notes and TODOs              
+\newcommand{\postit}[1]{%
+  \noindent
+  \fcolorbox{red}{yellow}{%
+    \begin{minipage}{5cm}
+      #1
+    \end{minipage}
+   }
+}
+
+\title{\textsc{Big Data Analytics (SOEN 498/691)} \\ Laboratory sessions}
+
+\author{Tristan Glatard\\Department of Computer Science and Software Engineering\\Concordia University, Montreal\\\href{mailto:tristan.glatard@concordia.ca}{tristan.glatard@concordia.ca}}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\part{Introduction to Apache Spark}
+
+\section{Introduction}
+
+Apache Spark is steadily emerging as a replacement for Hadoop
+MapReduce for Big Data Analytics, for the following reasons:
+\begin{itemize}
+\item Performance: Spark supports in-memory computing.
+\item Programming model: Spark's computing model is much richer than
+  MapReduce. Spark also supports Java, Python, Scala and R.
+  \item Spark can run on a variety of clusters, including but not
+    limited to Hadoop.
+\end{itemize}
+
+The goal of this session is to install Apache Spark on your computer
+and go through simple examples to understand its main concepts.
+
+Most of the material in this document is taken from the Apache Spark online documentation:
+\begin{itemize}
+\item  \href{http://spark.apache.org/docs/latest/quick-start.html}{Quick Start guide}
+\item \href{http://spark.apache.org/docs/latest/programming-guide.html}{Programming Guide}
+\end{itemize}
+Feel free to explore this documentation further!
+
+\section{Installation}
+
+Here we assume that you already have a working Hadoop installation on
+your computer. Download Apache Spark from the
+\href{http://spark.apache.org/downloads.html}{Download page}. Choose
+release 2.1.0, pre-built with user-provided Hadoop. Or using the
+command line:
+\begin{cli}
+  $ wget http://d3kbcqa49mib13.cloudfront.net/spark-2.1.0-bin-without-hadoop.tgz
+\end{cli}
+
+Unpack the release and edit \texttt{conf/spark-env.sh} so that it
+contains the following, as explained
+\href{http://spark.apache.org/docs/latest/hadoop-provided.html}{here}: \bashcode{spark/spark-env.sh}
+
+Add Spark's \texttt{bin} directory to your \texttt{PATH} environment
+variables so that the system can find Spark's commands:
+\begin{cli}
+  $ export PATH=$PATH:$PWD/spark-2.1.0-bin-without-hadoop/bin
+\end{cli}
+
+Make sure that the following example runs correctly:
+\begin{cli}
+  run-example SparkPi 10
+\end{cli}
+(\texttt{run-example} is a program located in
+\texttt{\$PWD/spark-2.1.0-bin-without-hadoop/bin}. In case the output
+of the previous command line is \texttt{Command not found}, check your
+\texttt{PATH}.)
+
+\section{Preliminaries}
+
+Spark programs can be written in Java, Scala, Python and R. Although
+we use Python in the remainder of this session, feel free to use any
+other language by following the \href{http://spark.apache.org/docs/latest/programming-guide.html}{Programming Guide}.
+
+An easy way to test Spark is to use \texttt{pyspark}, a Spark Python shell started with:
+\begin{cli}
+  $ pyspark
+\end{cli}
+In the following, commands starting with \texttt{>>>} are typed in
+\texttt{pyspark}.
+
+Spark relies on the concept of Resilient Distributed Dataset
+(RDD). RDDs are collections of elements that can be processed in
+parallel. RDDs can be created from regular data structures and
+files. For instance, here is how to create a RDD from an array of integers:
+\begin{cli}
+  >>> d = [1,2,3,4]
+  >>> pd = sc.parallelize(d)
+\end{cli}
+
+Here, \texttt{sc} is the Spark Context object provided by
+\texttt{pyspark}. In a standalone Spark program, you can created it as follows:
+\pythoncode{spark/context.py}
+
+In Spark, most operations are performed on RDDs. There are two types
+of operations on RDDs: \emph{transformations} produce another RDD from
+a given RDD, and \emph{actions} produce a simple value, e.g., an
+integer, from a given RDD. \texttt{map} is an example of
+transformation; the following code adds 1 to all the elements in RDD
+\texttt{pd}:
+\begin{cli}
+  >>> inc=pd.map(lambda x: x+1)
+\end{cli}
+While this code looks simple, it deserves a few comments:
+\begin{enumerate}
+\item Spark's \texttt{map} function is \underline{very different} from
+  MapReduce's map function. As we will see later, it can be used to
+  implement a MapReduce map function but it is much more general than
+  that.
+\item In Python, a \emph{lambda} is an anonymous function. As
+  explained in the
+  \href{https://docs.python.org/2/reference/expressions.html#lambda}{Python
+    documentation}, the expression \texttt{lambda arguments:
+    expression} yields a function object. Here, it is used to pass to
+  the map function a function that will be applied to all the elements
+  in \texttt{pd}.
+  \item At this stage, nothing has actually been computed by
+    Spark. That is, \texttt{inc} only contains a reference to the
+    result of the transformation which is currently not available. The
+    actual value will be computed as late as possible, when it is
+    really needed. This is called \emph{lazy evaluation}. 
+\end{enumerate}
+
+Now, let's use the \texttt{collect} action to return all the elements
+in the RDD as a Python array:
+\begin{cli}
+  >>> result=inc.collect()
+\end{cli}
+
+The result of your first Spark program should appear in the shell!
+
+\section{WordCount}
+
+We will now implement the classical WordCount example that we had already
+implemented with MapReduce.
+
+\end{document}
+
+
