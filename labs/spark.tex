@@ -124,24 +124,27 @@
 
 \newpage
 
-\part{Introduction to Apache Spark}
+\part{Apache Spark}
 
 \section{Introduction}
 
 Apache Spark is steadily emerging as a replacement for Hadoop
 MapReduce for Big Data Analytics, for the following reasons:
 \begin{itemize}
-\item Performance: Spark supports in-memory computing.
-\item Programming model: Spark's computing model is much richer than
-  MapReduce. Spark also supports Java, Python, Scala and R.
+\item Spark supports in-memory computing, which is faster
+  than MapReduce's file-based model.
+\item Spark's programming model is much richer than
+  MapReduce.
   \item Spark can run on a variety of clusters, including but not
     limited to Hadoop.
 \end{itemize}
 
 The goal of this session is to install Apache Spark on your computer
-and go through simple examples to understand its main concepts.
-
-Most of the material in this document is taken from the Apache Spark online documentation:
+and go through simple examples to understand its main concepts. There
+is no assignment associated to this session but the second lab
+assignment will have to be implemented using Spark.  Most of the
+material in this document is taken from the Apache Spark online
+documentation:
 \begin{itemize}
 \item  \href{http://spark.apache.org/docs/latest/quick-start.html}{Quick Start guide}
 \item \href{http://spark.apache.org/docs/latest/programming-guide.html}{Programming Guide}
@@ -150,7 +153,7 @@ Feel free to explore this documentation further!
 
 \section{Installation}
 
-Here we assume that you already have a working Hadoop installation on
+It is assumed that you already have a working Hadoop installation on
 your computer. Download Apache Spark from the
 \href{http://spark.apache.org/downloads.html}{Download page}. Choose
 release 2.1.0, pre-built with user-provided Hadoop. Or using the
