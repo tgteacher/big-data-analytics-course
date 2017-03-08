@@ -288,7 +288,7 @@ The word counts can now be printed using the \texttt{foreach} transformation:
 \begin{cli}
   >>> def g(x):
   ...   print x
-  >>> counts.foreach(lambda x: g(str(x[0])+'': ''+str(x[1]))
+  >>> counts.foreach(lambda x: g(str(x[0])+'': ''+str(x[1])))
 \end{cli}
 Or they might be saved in a text file using the \texttt{saveAsTextFile} action:
 \begin{cli}
@@ -311,7 +311,7 @@ The program can be executed as follows:
 Spark can transparently work with files stored on HDFS. Start your
 HDFS daemon, upload \texttt{test.txt} to HDFS and re-run the WordCount program:
 \begin{cli}
-  $ ./wordcount.py hdfs://test.txt file:///tmp/counts-hdfs
+  $ ./wordcount.py hdfs://localhost:9000/test.txt file:///tmp/counts-hdfs
 \end{cli}
 
 \section{Going further}
