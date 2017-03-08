@@ -129,17 +129,17 @@
 \section{Introduction}
 
 Clustering is a technique used in a variety of applications to
-categorize elements of a data set. We will implement the k-means
-clustering algorithm in MapReduce. k-means is a very popular
-clustering algorithm due to its simplicity. There is no assignment
-associated with this lab.
+categorize elements of a data set. In this lab, we will implement the
+k-means clustering algorithm in MapReduce. k-means is a very popular
+clustering algorithm due to its simplicity. You don't have to submit
+anything after this lab, it is only here to help you.
 
-Given a dataset consisting of $n$ elements and an integer $k\leq n$, the algorithm works as follows:
+Given a dataset consisting of $n$ elements and an integer $k\leq n$, the k-means algorithm works as follows:
 \begin{enumerate}
 \item Initialization: select $k$ initial means $m_1$, ... , $m_k$. Means are also called centroids.
 \item Assignment: assign every element $x$ of the dataset to a set
   $S_i$ such that $i=\mathrm{argmin}_{i \in [\![1,k]\!]}(d(x,m_i))$,
-  where $d(.,.)$ is a distance in the data set.
+  where $d(.,.)$ is a distance function defined on the data set.
 \item Update: update $m_i$ as the mean of the elements in $S_i$.
 \end{enumerate}
 Repeat steps 2 and 3 until the $m_i$ no longer change.
@@ -156,10 +156,15 @@ k-means algorithm on a dataset of 1,000 points clustered in 4 clusters.
     final centroid locations (red). The algorithm converged after 22 iterations.}
 \end{figure}
 
-\section{Basic idea}
+\section{Basic idea of the MapReduce implementation}
 
-We focus on a dataset containing 2D points. We will implement each
-iteration of the k-means algorithm as a MapReduce job.
+We focus on a dataset containing 2D points. We will implement
+\emph{each iteration} of the k-means algorithm as a MapReduce job. In
+other words, your program will run several MapReduce jobs, one for
+each iteration of the k-means algorithm. The loop and convergence
+detection will be handled in the main method (not in a MapReduce job). 
+
+Here is a description of the Map and Reduce functions:
 \begin{itemize}
 \item Map step:
   \begin{itemize}
@@ -171,8 +176,11 @@ iteration of the k-means algorithm as a MapReduce job.
 \item Reduce step:
   \begin{itemize}
   \item Receive (k, [v]): \texttt{i}, [(\texttt{x$_1$},\texttt{y$_1$}), (\texttt{x$_2$},\texttt{y$_2$}), \ldots]
-  \item Emit (k,v): \texttt{i}, (\texttt{$\bar x$}, \texttt{$\bar y$}) \newline
-    where \texttt{$\bar x$} and \texttt{$\bar y$} are the means of the \texttt{x$_i$} and \texttt{y$_i$}, respectively.
+  \item Emit (k,v): \texttt{i}, (\texttt{$\bar x$}, \texttt{$\bar
+    y$}) \newline where \texttt{$\bar x$} and \texttt{$\bar y$} are
+    the means of the \texttt{x$_i$} and \texttt{y$_i$},
+    respectively. (\texttt{$\bar x$}, \texttt{$\bar y$}) will be the
+    coordinates of centroid $i$.
   \end{itemize}
 \end{itemize}
 The centroids will be written in a file distributed to the mappers
@@ -193,11 +201,10 @@ that the result of the algorithm is dependent on the
 initialization. You may generate other datasets using a script such as
 \href{https://github.com/glatard/big-data-analytics-course/raw/master/labs/kmeans/generate.py}{\texttt{generate.py}}
 and plot them using
-\href{https://github.com/glatard/big-data-analytics-course/raw/master/labs/kmeans/plot.py}{\texttt{plot.py}}.
+\href{https://github.com/glatard/big-data-analytics-course/raw/master/labs/kmeans/plot-result.py}{\texttt{plot-result.py}}.
 
 Here is a possible solution: \javacode{kmeans/Kmeans.java}
 \vspace*{1cm}
- \postit{Check that it works in pseudo-distributed mode and add more comments to the code.}
 
 Figure~\ref{fig:illustration-2} shows result samples on various datasets.
 \begin{figure}[h]
@@ -207,6 +214,12 @@ Figure~\ref{fig:illustration-2} shows result samples on various datasets.
   \caption{k-means results on various datasets clustered with k=4, k=4 and k=30 (left to right). Final centroids are in red and other colors represent clusters.}
     \label{fig:illustration-2}
 \end{figure}
+
+\section{Bonus}
+
+Identify clustering errors that appear on
+Figure~\ref{fig:illustration-2}. Where do you think these errors are
+coming from? How can you improve this situation?
 
 \end{document}
 

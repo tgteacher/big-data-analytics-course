@@ -15,7 +15,7 @@ if __name__ == "__main__":
   area=[]
   for line in args.classification_file:
     c,xx,yy=str.split(line)
-    color.append(c)
+    color.append(int(c))
     area.append(math.pi*6**2)
     x.append(xx)
     y.append(yy)
