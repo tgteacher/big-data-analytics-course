@@ -128,8 +128,8 @@
 
 \section{Introduction}
 
-Apache Spark is steadily emerging as a replacement for Hadoop
-MapReduce for Big Data Analytics, for the following reasons:
+\href{http://spark.apache.org}{Apache Spark} is steadily emerging as a
+replacement of Hadoop MapReduce for the following reasons:
 \begin{itemize}
 \item Spark supports in-memory computing, which is faster
   than MapReduce's file-based model.
@@ -140,13 +140,14 @@ MapReduce for Big Data Analytics, for the following reasons:
 \end{itemize}
 
 The goal of this session is to install Apache Spark on your computer
-and go through simple examples to understand its main concepts. There
-is no assignment associated to this session but the second lab
-assignment will have to be implemented using Spark.  Most of the
-material in this document is taken from the Apache Spark online
-documentation:
+and go through simple examples to understand its main
+concepts. Although you won't have to submit anything at the end of
+this session, the second lab assignment (LA2) will have to be
+implemented using Spark so it is important that you complete this one
+to the end.  Most of the material in this document is taken from the
+Apache Spark online documentation:
 \begin{itemize}
-\item  \href{http://spark.apache.org/docs/latest/quick-start.html}{Quick Start guide}
+\item  \href{http://spark.apache.org/docs/latest/quick-start.html}{Quick Start Guide}
 \item \href{http://spark.apache.org/docs/latest/programming-guide.html}{Programming Guide}
 \end{itemize}
 Feel free to explore this documentation further!
@@ -154,118 +155,111 @@ Feel free to explore this documentation further!
 \section{Installation}
 
 It is assumed that you already have a working Hadoop installation on
-your computer. Download Apache Spark from the
-\href{http://spark.apache.org/downloads.html}{Download page}. Choose
-release 2.1.0, pre-built with user-provided Hadoop. Or using the
-command line:
+your computer. Download Apache Spark from
+\href{http://spark.apache.org/downloads.html}{there}. Choose release
+2.1.0, pre-built with user-provided Hadoop. You can also use the
+command line directly:
 \begin{cli}
   $ wget http://d3kbcqa49mib13.cloudfront.net/spark-2.1.0-bin-without-hadoop.tgz
 \end{cli}
-
-Unpack the release and edit \texttt{conf/spark-env.sh} so that it
-contains the following, as explained
-\href{http://spark.apache.org/docs/latest/hadoop-provided.html}{here}: \bashcode{spark/spark-env.sh}
-
+Unpack the release and write the following lines to \texttt{conf/spark-env.sh}, as explained
+\href{http://spark.apache.org/docs/latest/hadoop-provided.html}{here}:
+\bashcode{spark/spark-env.sh}
 Add Spark's \texttt{bin} directory to your \texttt{PATH} environment
 variables so that the system can find Spark's commands:
 \begin{cli}
   $ export PATH=$PATH:$PWD/spark-2.1.0-bin-without-hadoop/bin
 \end{cli}
-
 Make sure that the following example runs correctly:
 \begin{cli}
   run-example SparkPi 10
 \end{cli}
-(\texttt{run-example} is a program located in
+\texttt{run-example} is a program located in
 \texttt{\$PWD/spark-2.1.0-bin-without-hadoop/bin}. In case the output
 of the previous command line is \texttt{Command not found}, check your
-\texttt{PATH}.)
+\texttt{PATH}.
 
 \section{Resilient Distributed Datasets (RDD)}
 
 Spark programs can be written in Java, Scala, Python and R. Although
-we use Python in the remainder of this session, feel free to use any
-other language by following the \href{http://spark.apache.org/docs/latest/programming-guide.html}{Programming Guide}.
+we use Python in the remainder of this document, feel free to use any
+other language and find the corresponding commands in the
+\href{http://spark.apache.org/docs/latest/programming-guide.html}{Programming
+  Guide}.
 
-An easy way to test Spark is to use \texttt{pyspark}, a Spark Python shell started with:
+An easy way to start using Spark is through \texttt{pyspark}, a
+Spark Python shell started as follows:
 \begin{cli}
   $ pyspark
 \end{cli}
 In the following, commands starting with \texttt{>>>} are typed in
 \texttt{pyspark}.
-
-Spark relies on the concept of Resilient Distributed Dataset
-(RDD). RDDs are collections of elements that can be processed in
-parallel. RDDs can be created from regular data structures and
+Spark relies on the concept of Resilient Distributed Datasets
+(RDDs). RDDs are collections of elements that can be processed in
+parallel and created from regular data structures or
 files. For instance, here is how to create a RDD from an array of integers:
 \begin{cli}
   >>> d = [1,2,3,4]
   >>> pd = sc.parallelize(d)
 \end{cli}
-
 Here, \texttt{sc} is the Spark Context object provided by
-\texttt{pyspark}. In a standalone Spark program, you can created it as follows:
+\texttt{pyspark}. In a standalone Spark program, you can create \texttt{sc} as follows:
 \pythoncode{spark/context.py}
 
-In Spark, most operations are performed on RDDs. There are two types
-of operations on RDDs: \emph{transformations} produce another RDD from
-a given RDD, and \emph{actions} produce a simple value, e.g., an
-integer, from a given RDD. \texttt{map} is an example of
-transformation; the following code adds 1 to all the elements in RDD
-\texttt{pd}:
+In Spark, two types of operations can be performed on RDDs:
+\emph{transformations} produce another RDD from a given RDD, and
+\emph{actions} produce a simple value, e.g., an integer, from a given
+RDD. The \texttt{map} function is an example of transformation used in
+the following code to add 1 to all the elements in RDD \texttt{pd}:
 \begin{cli}
   >>> inc=pd.map(lambda x: x+1)
 \end{cli}
-While this code looks simple, it deserves a few comments:
+Here are a few remarks about this line of code:
 \begin{enumerate}
 \item Spark's \texttt{map} function is \underline{very different} from
-  MapReduce's map function. As we will see later, it can be used to
-  implement a MapReduce map function but it is much more general than
-  that.
-\item In Python, a \emph{lambda} is an anonymous function. As
-  explained in the
+  MapReduce's \texttt{map} function. Spark's
+  \texttt{map} can be used to implement a MapReduce \texttt{map}
+  function but it is much more general than that.
+\item In Python, a \emph{lambda} is an anonymous function and the expression \texttt{lambda arguments:
+    expression} yields a function object. See more details in the
   \href{https://docs.python.org/2/reference/expressions.html#lambda}{Python
-    documentation}, the expression \texttt{lambda arguments:
-    expression} yields a function object. Here, it is used to pass to
-  the map function a function that will be applied to all the elements
+    documentation}.  Here, a lambda is used to provide 
+  the \texttt{map} function with a function that will be applied to all the elements
   in \texttt{pd}.
   \item At this stage, nothing has actually been computed by
     Spark. That is, \texttt{inc} only contains a reference to the
-    result of the transformation which is currently not available. The
+    result of the transformation that \emph{will} be applied to \texttt{pd}. The
     actual value will be computed as late as possible, when it is
     really needed. This is called \emph{lazy evaluation}. 
 \end{enumerate}
-
-Now, let's use the \texttt{collect} action to return all the elements
+Let's now use the \texttt{collect} action to return all the elements
 in the RDD as a Python array:
 \begin{cli}
   >>> result=inc.collect()
 \end{cli}
-
-The result of your first Spark program should appear in the shell!
+The result of your first Spark program should now appear in the shell!
 
 \section{WordCount}
 
-We will now implement the classical WordCount example that we had
-already implemented with MapReduce. We will follow the same logic,
-i.e., our program will emit a \texttt{(w,1)} pair for every word found
-in the text file. Then, we will sum the \texttt{1}s associated with
-a given word \texttt{w}.
+We will now implement with Spark the classical WordCount example. We
+will follow the same logic as with MapReduce, i.e., our program will
+emit a \texttt{(w,1)} pair for every word found in the input text
+file. Then it will sum the \texttt{1}s associated with a given word
+\texttt{w}.
 
-First, let's create a simple two-line \texttt{test.txt} text file for testing:
+\subsection{Step-by-step presentation}
+
+First, let's create a simple input text file:
 \begin{cli}
-  $ echo one two three two three three > test.txt
-  $ echo one two three >> test.txt
+  $ echo one two three two three three > /tmp/test.txt
+  $ echo one two three >> /tmp/test.txt
 \end{cli}
-
-The first step in the Spark program is to create an RDD from
-\texttt{test.txt} (this is done in \texttt{pyspark}:
+Our first step will be to create a RDD from the input text file:
 \begin{cli}
-  >>> lines = sc.textFile(``file://test.txt'')
+  >>> lines = sc.textFile(``file:///tmp/test.txt'')
 \end{cli}
-The RDD contains one element for every line in the text file. 
-
-Now we need to split every line in word, which we will do using the
+This RDD contains one element for every line in the text file.  Now we
+need to split those lines into words, which we will do using the
 \texttt{flatMap} transformation.  \texttt{flatMap} is used when an
 element in the input RDD is mapped to an arbitrary number of elements
 (0 or more) in the output RDD. In our case, every line in the text
@@ -275,7 +269,7 @@ file will be mapped to all the words in this line:
 \end{cli}
 RDD \texttt{words} now contains all the words in the dataset (or it
 will contain them when the program is evaluated, remember that Spark
-is lazy), which we can to convert to \texttt{(w,1)} pairs using a
+is lazy). We will now convert these words to \texttt{(w,1)} pairs using a
 \texttt{map} transformation:
 \begin{cli}
   >>> pairs=words.map(lambda x: (x,1))
@@ -290,7 +284,6 @@ The function passed to \texttt{reduceByKey} is a binary
 operator that takes as argument two values from the key-value pairs
 and returns one. Besides, this function must be
 \underline{commutative} and \underline{associative}. 
-
 The word counts can now be printed using the \texttt{foreach} transformation:
 \begin{cli}
   >>> def g(x):
@@ -302,20 +295,19 @@ Or they might be saved in a text file using the \texttt{saveAsTextFile} action:
   >>> counts.saveAsTextFile(``file:///tmp/counts'')
 \end{cli}
 
+\subsection{Complete program}
+
 Here is a complete version of WordCount in Spark:
 \pythoncode{spark/wordcount.py}
-
 To run this program, you will have to update your environment as follows:
 \begin{cli}
   $ export PYTHONPATH=$PWD/spark-2.1.0-bin-without-hadoop/python
   $ sudo pip install py4j
 \end{cli}
-
-The program is run as follows:
+The program can be executed as follows:
 \begin{cli}
   $ ./wordcount.py file:///tmp/test.txt file:///tmp/counts
 \end{cli}
-
 Spark can transparently work with files stored on HDFS. Start your
 HDFS daemon, upload \texttt{test.txt} to HDFS and re-run the WordCount program:
 \begin{cli}
@@ -324,16 +316,16 @@ HDFS daemon, upload \texttt{test.txt} to HDFS and re-run the WordCount program:
 
 \section{Going further}
 
-A complete list of transformations and actions is available in the
+A complete list of transformations and actions available on RDDs is in
+the
 \href{http://spark.apache.org/docs/latest/programming-guide.html}{Programming
   Guide}. Examples are also available in Spark's
-\href{https://github.com/apache/spark}{Github repository}.
-
-Try re-implementing in Spark the kmeans clustering algorithm
-programmed in a
+\href{https://github.com/apache/spark}{Github repository}. Try
+re-implementing in Spark the kmeans clustering algorithm programmed in
+our
 \href{https://github.com/glatard/big-data-analytics-course/releases/download/0.7.3/kmeans.pdf}{previous
   lab session} using MapReduce. A solution is available
-\href{https://github.com/apache/spark/tree/master/examples/src/main/python}{there}.
+\href{https://github.com/apache/spark/tree/master/examples/src/main/python/kmeans.py}{there}.
 
 \end{document}
 
