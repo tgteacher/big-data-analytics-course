@@ -288,7 +288,7 @@ The word counts can now be printed using the \texttt{foreach} transformation:
 \begin{cli}
   >>> def g(x):
   ...   print x
-  >>> counts.foreach(lambda x: g(str(x[0])+'': ''+str(x[1]))
+  >>> counts.foreach(lambda x: g(str(x[0])+'': ''+str(x[1])))
 \end{cli}
 Or they might be saved in a text file using the \texttt{saveAsTextFile} action:
 \begin{cli}
@@ -299,7 +299,8 @@ Or they might be saved in a text file using the \texttt{saveAsTextFile} action:
 
 Here is a complete version of WordCount in Spark:
 \pythoncode{spark/wordcount.py}
-To run this program, you will have to update your environment as follows:
+
+\noindent To run this program, you will have to update your environment as follows:
 \begin{cli}
   $ export PYTHONPATH=$PWD/spark-2.1.0-bin-without-hadoop/python
   $ sudo pip install py4j
