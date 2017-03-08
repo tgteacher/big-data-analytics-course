@@ -312,7 +312,7 @@ The program can be executed as follows:
 Spark can transparently work with files stored on HDFS. Start your
 HDFS daemon, upload \texttt{test.txt} to HDFS and re-run the WordCount program:
 \begin{cli}
-  $ ./wordcount.py hdfs://test.txt file:///tmp/counts-hdfs
+  $ ./wordcount.py hdfs://localhost:9000/test.txt file:///tmp/counts-hdfs
 \end{cli}
 
 \section{Going further}
