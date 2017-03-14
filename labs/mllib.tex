@@ -143,6 +143,8 @@ introduction to Apache Spark, please refer to the
 backward compatibility even between minor versions is not
 ensured. Here we use version 2.1.0. 
 
+\href{Pyspark documentation}{http://spark.apache.org/docs/latest/api/python/index.html}
+
 \section{The DataFrame API}
 
 This section is adapted from the
@@ -155,9 +157,39 @@ uses another kind of data objects, called DataFrame. A DataFrame
 consists of named columns. It is conceptually equivalent to a table in
 a database.
 
+Before using the DataFrame API, a Spark session must be created:
+\begin{cli}
+  >>> spark = SparkSession.builder.appName("Lab session").getOrCreate()
+\end{cli}
+
+A DataFrame can be created from an RDD or from a file. For instance,
+here is how to read a DataFrame from a
+\href{libSVM}{https://www.csie.ntu.edu.tw/~cjlin/libsvm/} file:
+\begin{cli}
+  >>> import os
+  >>> spark_home = os.environ['SPARK_HOME']
+  >>> dataset = spark.read.format("libsvm").load("file://''+os.join(spark_home,''data/mllib/sample_kmeans_data.txt")
+\end{cli}
+DataFrame objects can then be inspected and queried as a database relation:
+\begin{cli}
+>>> dataset.show()
+>>> dataset.select("label").show()
+>>> dataset.filter(dataset["label"]==1).show()
+\end{cli}
+See more details in the \href{http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame}{PySpark documentation}.
+
 \section{Clustering}
 
+MLlib includes an enhanced version of kmeans called kmeans||.
+
+SVM format.
+
+
+\pythoncode(mllib/clustering.py}
+
 \section{Collaborative filtering}
+
+
 
 \section{Frequent itemsets mining}
 
