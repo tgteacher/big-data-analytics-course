@@ -132,43 +132,43 @@ MLlib (Machine-Learning library) is a library in
 \href{http://spark.apache.org}{Apache Spark} that contains
 implementations of several algorithms seen in the lecture. In this
 session, we will run through basic examples related to clustering,
-recommendation systems and the mining of frequent itemsets.  Most of
-the material in this document is taken from the
+recommendation systems and the mining of frequent itemsets. These
+examples may help you start with your project. Most of the material in
+this document is taken from the
 \href{http://spark.apache.org/docs/latest/ml-guide.html}{MLlib
   guide}. You are encouraged to further explore this guide should you
-need more details about MLlib. For installation instructions and an
-introduction to Apache Spark, please refer to the
+need more details about MLlib. The
+\href{http://spark.apache.org/docs/latest/api/python/index.html}{Pyspark
+  documentation} is the reference API documentation.  For installation
+instructions and an introduction to Apache Spark, please refer to the
 \href{https://github.com/glatard/big-data-analytics-course/releases/download/0.8/spark.pdf}{previous
   lab session}. Warning: MLlib is still under active development and
 backward compatibility even between minor versions is not
-ensured. Here we use version 2.1.0. 
+ensured. Here we use version 2.1.0.
 
-\href{Pyspark documentation}{http://spark.apache.org/docs/latest/api/python/index.html}
 
 \section{The DataFrame API}
 
 This section is adapted from the
 \href{http://spark.apache.org/docs/latest/sql-programming-guide.html}{Spark
-  DataFrame Guide}.
-
-In the introduction session we presented how Resilient Distributed
-Datasets are used to define parallel operations on datasets. MLlib
-uses another kind of data objects, called DataFrame. A DataFrame
-consists of named columns. It is conceptually equivalent to a table in
-a database.
+  DataFrame Guide}. In the introduction session we presented how
+Resilient Distributed Datasets are used to define parallel operations
+on datasets. MLlib uses another kind of data objects, called
+DataFrame. A DataFrame consists of named columns. It is conceptually
+equivalent to a table in a database.
 
 Before using the DataFrame API, a Spark session must be created:
 \begin{cli}
   >>> spark = SparkSession.builder.appName("Lab session").getOrCreate()
 \end{cli}
-
 A DataFrame can be created from an RDD or from a file. For instance,
 here is how to read a DataFrame from a
 \href{libSVM}{https://www.csie.ntu.edu.tw/~cjlin/libsvm/} file:
 \begin{cli}
   >>> import os
   >>> spark_home = os.environ['SPARK_HOME']
-  >>> dataset = spark.read.format("libsvm").load("file://''+os.join(spark_home,''data/mllib/sample_kmeans_data.txt")
+  >>> dataset = spark.read.format("libsvm").load(\
+      "file://"+os.join(spark_home,"data/mllib/sample_kmeans_data.txt"))
 \end{cli}
 DataFrame objects can then be inspected and queried as a database relation:
 \begin{cli}
@@ -180,15 +180,77 @@ See more details in the \href{http://spark.apache.org/docs/latest/api/python/pys
 
 \section{Clustering}
 
-MLlib includes an enhanced version of kmeans called kmeans||.
+MLlib includes an enhanced version of kmeans called
+\href{http://theory.stanford.edu/~sergei/papers/vldb12-kmpar.pdf}{kmeans$\mid\mid$}. The
+library is quite straightforward to use, but you should note that
+KMeans are implemented as an MLlib
+\href{http://spark.apache.org/docs/latest/api/python/pyspark.ml.html?highlight=estimator#pyspark.ml.Estimator}{Estimator}
+that fits a model to the dataset.
 
-SVM format.
+Parameters of the \texttt{KMeans} estimator are listed as follows:
+\begin{cli}
+  >>> from pyspark.ml.clustering import KMeans
+  >>> KMeans().explainParams()
+\end{cli}
+Having loaded the dataset as in the previous section, the KMeans
+estimator is used as follows:
+\begin{cli}
+  >>> kmeans = KMeans(k=2)
+  >>> model=kmeans.fit(dataset)
+\end{cli}
+The resulting model essentially contains the cluster centroids:
+\begin{cli}
+  >>> print model.clusterCenters()
+\end{cli}
+Finally, a model can be applied to a dataset as follows:
+\begin{cli}
+  >>> classified_dataset=model.transform(dataset)
+  >>> classsified_dataset.show()
+\end{cli}
 
-
-\pythoncode(mllib/clustering.py}
+The complete example is available here:
+\pythoncode{mllib/clustering.py}\\
+See also
+\href{https://github.com/apache/spark/blob/master/examples/src/main/python/ml/kmeans_example.py}{example
+  in Spark repository}.
 
 \section{Collaborative filtering}
 
+MLlib implements latent-factor-based collaborative filtering using the
+alternate least-square method. It means that you can implement a
+recommendation system with a few lines of code only.
+
+The example below, extracted from the Spark documentation, loads a
+sample of the MovieLens dataset, parses it as
+\href{http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.Row}{DataFrame
+  Rows} and create a DataFrame from these Rows:
+\begin{cli}
+  >>> from pyspark.sql import Row
+  >>> lines = spark.read.text("file://"+example_file_path).rdd
+  >>> parts = lines.map(lambda row: row.value.split("::"))
+  >>> ratingsRDD = parts.map(lambda p: Row(userId=int(p[0]), movieId=int(p[1]),
+                                     rating=float(p[2]), timestamp=long(p[3])))
+  >>> ratings = spark.createDataFrame(ratingsRDD)
+\end{cli}
+For evaluation purposes, the DataFrame is then split in a training and
+a testing (evaluation) set:
+\begin{cli}
+  >>> (training, test) = ratings.randomSplit([0.8, 0.2])
+\end{cli}
+The recommendation model is then built as follows:
+\begin{cli}
+  >>> from pyspark.ml.recommendation import ALS
+  >>>  als = ALS(maxIter=5, regParam=0.01, userCol="userId", itemCol="movieId", ratingCol="rating")
+  >>> model = als.fit(training)
+\end{cli}
+And finally its RMSE can be evaluated on the test data:
+\begin{cli}
+  >>> from pyspark.ml.evaluation import RegressionEvaluator
+  >>> predictions = model.transform(test)
+  >>> evaluator = RegressionEvaluator(metricName="rmse", labelCol="rating",
+                                predictionCol="prediction")
+  >>> rmse = evaluator.evaluate(predictions)
+\end{cli}
 
 
 \section{Frequent itemsets mining}
