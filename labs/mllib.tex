@@ -136,9 +136,24 @@ recommendation systems and the mining of frequent itemsets.  Most of
 the material in this document is taken from the
 \href{http://spark.apache.org/docs/latest/ml-guide.html}{MLlib
   guide}. You are encouraged to further explore this guide should you
-need more details about MLlib.
+need more details about MLlib. For installation instructions and an
+introduction to Apache Spark, please refer to the
+\href{https://github.com/glatard/big-data-analytics-course/releases/download/0.8/spark.pdf}{previous
+  lab session}. Warning: MLlib is still under active development and
+backward compatibility even between minor versions is not
+ensured. Here we use version 2.1.0. 
 
 \section{The DataFrame API}
+
+This section is adapted from the
+\href{http://spark.apache.org/docs/latest/sql-programming-guide.html}{Spark
+  DataFrame Guide}.
+
+In the introduction session we presented how Resilient Distributed
+Datasets are used to define parallel operations on datasets. MLlib
+uses another kind of data objects, called DataFrame. A DataFrame
+consists of named columns. It is conceptually equivalent to a table in
+a database.
 
 \section{Clustering}
 
