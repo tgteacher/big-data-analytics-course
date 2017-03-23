@@ -1,0 +1,378 @@
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage[colorlinks]{hyperref}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{amsmath}
+
+% Colors
+\definecolor{mygray}{RGB}{235,235,235}
+
+% Margins
+\setlength{\topmargin}{-2cm}
+\setlength{\textwidth}{16.5cm}
+\setlength{\textheight}{24cm}
+\setlength{\evensidemargin}{0cm}
+\setlength{\oddsidemargin}{0cm}
+
+% Fix link colors
+\hypersetup{
+    colorlinks = true,
+    linkcolor=red,
+    citecolor=red,
+    urlcolor=blue,
+    linktocpage % so that page numbers are clickable in toc
+}
+
+
+% Code listings
+\lstset{
+  basicstyle=\ttfamily,
+  keywordstyle=\color{blue}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  commentstyle=\color{magenta}\ttfamily,
+  morecomment=[l][\color{magenta}]{\#}
+}
+
+
+\lstnewenvironment{cli}
+                  {\footnotesize
+                    \lstset{columns=fullflexible,
+                      language=bash,
+                      backgroundcolor=\color{mygray}
+                  }}
+{}
+
+\lstnewenvironment{xml}
+                  {\footnotesize
+                    \lstset{columns=fullflexible,
+                      language=XML,
+                      backgroundcolor=\color{Salmon},
+                      morekeywords={property,name,value,description,configuration}
+                  }}
+{}
+
+\newcommand{\bashcode}[1]{
+  \begin{footnotesize}
+  \par
+  \hfill \colorbox{SkyBlue}
+         {
+           \href{https://github.com/glatard/big-data-analytics-labs/raw/master/labs/#1}
+                {(\underline{Link to file})
+         }} \hfill
+         \lstset{language=bash,
+           columns=fullflexible,
+           backgroundcolor=\color{SkyBlue}}
+  \vspace*{-0.3cm}
+  \lstinputlisting{#1}
+  \end{footnotesize}
+}
+
+\newcommand{\pythoncode}[1]{
+  \begin{footnotesize}
+  \par
+  \hfill \colorbox{YellowGreen}
+         {\href{https://github.com/glatard/big-data-analytics-labs/raw/master/labs/#1}
+           {(\underline{Link to file})
+         }} \hfill
+         \lstset{language=java,
+           columns=fullflexible,
+           backgroundcolor=\color{YellowGreen}}
+%  \vspace*{-0.3cm}
+%  \lstinputlisting{#1}
+  \end{footnotesize}
+}
+
+\newcommand{\textfile}[1]{
+  \begin{footnotesize}
+  \par
+  \hfill \colorbox{SkyBlue}
+         {\href{https://github.com/glatard/big-data-analytics-labs/raw/master/labs/#1}
+           {(\underline{Link to file})
+         }} \hfill
+         \lstset{columns=fullflexible,
+           backgroundcolor=\color{SkyBlue}}
+  \vspace*{-0.3cm}
+  \lstinputlisting{#1}
+  \end{footnotesize}
+}
+
+\newcounter{ques}
+\setcounter{ques}{1}
+\newcommand{\question}[1]{\paragraph{}\noindent\textbf{Q\theques} - #1\stepcounter{ques} }
+\newcommand{\answer}[0]{
+\vspace*{0.5cm}
+  \noindent Expected output on \texttt{iliad} and \texttt{odyssey}:}
+
+% Notes and TODOs              
+\newcommand{\postit}[1]{%
+  \noindent
+  \fcolorbox{red}{yellow}{%
+    \begin{minipage}{5cm}
+      #1
+    \end{minipage}
+   }
+}
+
+\title{\textsc{Big Data Analytics (SOEN 498/691)} \\ Laboratory sessions}
+
+\author{Tristan Glatard\\Department of Computer Science and Software Engineering\\Concordia University, Montreal\\\href{mailto:tristan.glatard@concordia.ca}{tristan.glatard@concordia.ca}}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\part{Log analysis}
+
+\section{Introduction}
+
+In this assignment you will analyze log files using Apache
+Spark. We will focus on Linux syslog files and more precisely on the
+\texttt{messages} file located in \texttt{/var/log} on most Linux
+distributions. Such analyses have various applications in system
+administration, e.g., for security diagnostics.
+
+Lines in \texttt{/var/log/messages} are formatted as follows:
+\begin{center}
+  \texttt{<timestamp> <host\_name> <source>: <message>}
+\end{center}
+where \texttt{<timestamp>} is a timestamp, \texttt{<host\_name>} is
+the host (computer) name, \texttt{<source>} is the program that
+generated the line and \texttt{<message>} is the log message. Here is
+an example:
+\begin{center}
+  \texttt{Feb 28 03:30:01 iliad systemd: Started Session 4415 of user achille.}
+\end{center}
+
+You have to write a Spark program to answer the \textbf{9 questions}
+detailed below (\textbf{Q1}-\textbf{Q9}). Log files collected on two
+hosts called \texttt{iliad} and \texttt{odyssey} are available on
+Moodle to test your program. During marking, your program will be run
+on similar but different files to check its correctness.
+Section~\ref{sec:submission} summarizes submission instructions and
+the marking scheme that will be used to evaluate your submission. You
+are strongly encouraged to review these instructions before starting
+the assignment.
+
+\section{Filtering and Counting}
+
+The following queries must be run separately on the log files of each
+host, i.e., \emph{one answer must be returned for each host}.
+
+\question{For each host, print the total number of available log
+  lines.}
+
+\answer
+\begin{cli}
+$  ./log_analyzer -q 1 iliad odyssey
+* Q1: line counts
+  + iliad: 63854                                                                
+  + odyssey: 65405
+\end{cli}
+
+\question{For each host, print the number of sessions that were
+  started for user \texttt{achille}. Session starts are logged in
+  messages containing the following string: \texttt{Starting Session
+    <id> of user <user>}, where \texttt{<id>} is the session id and
+  \texttt{<user>} is the user name.}
+
+\answer
+\begin{cli}
+$  ./log_analyzer -q 2 iliad odyssey
+* Q2: sessions of user 'achille'
+  + iliad: 5173
+  + odyssey: 5228
+\end{cli}
+
+\question{For each host, list the unique user names who started a session.}
+
+\answer
+\begin{cli}
+$  ./log_analyzer -q 3 iliad odyssey
+* Q3: unique user names
+  + iliad: ['gaia', 'pollux', 'achille', 'helene', 'hector']                    
+  + odyssey: ['achille', 'hector', 'ares']  
+\end{cli}
+
+\question{For each host, list the number of sessions started per user.}
+
+\answer
+\begin{cli}
+$  ./log_analyzer -q 4 iliad odyssey
+* Q4: sessions per user
+  + iliad: [('gaia', 2), ('pollux', 38), ('achille', 5173), ('helene', 248), ('hector', 9)]
+  + odyssey: [('achille', 5228), ('hector', 2), ('ares', 40)]  
+\end{cli}
+
+\section{Errors}
+
+The following queries must be run separately on the logs of each host,
+i.e., \emph{one answer must be returned for each host}.
+
+\question{For each host, count the error messages, i.e., the lines that contain string ``error'' (case insensitive match).}
+
+\answer
+\begin{cli}
+$  ./log_analyzer -q 5 iliad odyssey
+* Q5: number of errors
+  + iliad: 2723
+  + odyssey: 25805
+\end{cli}
+
+\question{For each host, print the 5 most frequent error messages and their counts.}
+
+\answer
+\begin{cli}
+$  ./log_analyzer -q 6 iliad odyssey
+* Q6: 5 most frequent error messages
+  + iliad: 
+    - (889, 'journal: ethtool ioctl error: No such device ')
+    - (24, 'gnome-session: ** (evince:31187): WARNING **: Error setting file metadata: No such file or directory ')
+    - (9, 'gnome-session: https://yum.dockerproject.org/repo/main/centos/7/repodata/3849c07e5505140b8134d3cf1bef35cd1cfe4797bee74799953d73a568694fd1-filelists.sqlite.bz2: [Errno 14] HTTPS Error 403 - Forbidden ')
+    - (9, "gnome-session: GDBus.Error:org.gtk.GDBus.UnmappedGError.Quark._imsettings_2derror_2dquark.Code5: Current desktop isn't targeted by IMSettings. ")
+    - (8, 'firefox.desktop: Crash Annotation GraphicsCriticalError: |[0][GFX1-]: GLContext is disabled due to a previous crash.|[6][GFX1-]: GLContext is disabled due to a previous crash.|[7][GFX1-]: GLContext is disabled due to a previous crash.|[8][GFX1-]: GLContext is disabled due to a previous crash.|[4][GFX1-]: GLContext is disabled due to a previous crash.|[5][GFX1-]: GLContext is disabled due to a previous crash.[GFX1-]: GLContext is disabled due to a previous crash. ')
+  + odyssey:                                                                    
+    - (9229, 'gnome-session: (tracker-miner-fs:30474): Tracker-CRITICAL **: Could not execute sparql: column nie:url is not unique (strerror of errno (not necessarily related): No such file or directory) ')
+    - (4519, 'gnome-session: (tracker-miner-fs:30474): Tracker-CRITICAL **: (Sparql buffer) Error in task 0 of the array-update: column nie:url is not unique (strerror of errno (not necessarily related): No such file or directory) ')
+    - (2776, 'gnome-session: (tracker-miner-fs:30474): Tracker-CRITICAL **: (Sparql buffer) Error in task 2 of the array-update: column nie:url is not unique (strerror of errno (not necessarily related): No such file or directory) ')
+    - (2401, 'gnome-session: (tracker-miner-fs:1259): Tracker-CRITICAL **: Could not execute sparql: column nie:url is not unique (strerror of errno (not necessarily related): No such file or directory) ')
+    - (1697, 'gnome-session: (tracker-miner-fs:1259): Tracker-CRITICAL **: (Sparql buffer) Error in task 0 of the array-update: column nie:url is not unique (strerror of errno (not necessarily related): No such file or directory) ')
+\end{cli}
+
+\section{Combining logs}
+
+The following queries are run on a combination of both hosts, i.e.,
+\emph{a single answer combining information coming from both hosts
+  must be returned for each question}.
+
+\question{List the user names who started a session on both hosts.}
+
+\answer
+\begin{cli}
+$  ./log_analyzer -q 7 iliad odyssey
+* Q7: users who started a session on both hosts, i.e., on exactly 2 hosts.
+  + : ['achille', 'hector']      
+\end{cli}
+
+\question{List the user names who started a session on exactly one host and list this host.}
+
+\answer
+\begin{cli}
+$  ./log_analyzer -q 8 iliad odyssey
+* Q8: users who started a session on exactly one host, with host name.
+  + : [('gaia', 'iliad'), ('pollux', 'iliad'), ('helene', 'iliad'), ('ares', 'odyssey')]
+\end{cli}
+
+\section{Anonymization}
+
+\question{Anonymize the logs, i.e., replace user names with strings
+  formatted as \texttt{user-<i>} where \texttt{i} is the index of the
+  user name in the array of original user names sorted
+  alphabetically. For instance, user names \texttt{foo} and
+  \texttt{bar} must be replaced by \texttt{user-1} and \texttt{user-0}
+  (respectively), assuming that \texttt{foo} and \texttt{bar} are the
+  only user names in the log. In addition to writing the anonymized
+  files, your program must print the mapping used for the
+  anonymization and the location where the anonymized files were written.}
+
+\answer
+\begin{cli}
+$  ./log_analyzer -q 9 iliad odyssey
+  + iliad:                                                                      
+  .    User name mapping: [('achille', 'user-0'), ('gaia', 'user-1'), ('hector', 'user-2'),\
+    ('helene', 'user-3'), ('pollux', 'user-4')]
+.    Anonymized files: iliad-anonymized-10
+  + odyssey:                                                                    
+.    User name mapping: [('achille', 'user-0'), ('ares', 'user-1'), ('hector', 'user-2')]
+.    Anonymized files: odyssey-anonymized-10
+\end{cli}
+The corresponding anonymized logs are available on Moodle.
+
+\newpage
+
+\section{Submission and Marking}
+\label{sec:submission}
+
+Your assignment must be submitted as a \texttt{tgz} or \texttt{zip}
+archive on Moodle. The archive name must contain your name(s) and
+student id(s). If you are submitting in a team of two, each team
+member must submit a copy of the assignment. The submitted archive has
+to include the following files:
+\begin{itemize}
+\item A command-line program that prints the output of the above
+  questions to the console, using the following syntax:
+\begin{cli}
+$ ./log_analyzer -q <i> <dir1> <dir2> 
+\end{cli}
+Where \texttt{<dir1>} and \texttt{<dir2>} are two directories
+containing log files collected on two different hosts, and
+\texttt{<i>} is the question number. For instance, your program will
+be executed as follows to run question 7 on the test logs:
+\begin{cli}
+  $ log_analyzer -q 7 iliad odyssey
+\end{cli}
+\item The source code of your program. You may use any programming
+  language supported by Spark, i.e., Java, Scala or Python.
+\item A README file explaining how to compile (if relevant) your
+  program, and any other useful information to run it, e.g.,
+  required versions, required environment variables, etc.
+\item A Git commit history (\texttt{.git} directory) or the URL of a
+  Git repository (e.g., Github) that you used to develop your program. Your
+  commit history will be checked and frequent commits showing
+  incremental development will be favored over monolithic ones.
+\end{itemize}
+
+Your program will be run on the testing data (\texttt{iliad} and
+\texttt{odyssey}) and on undisclosed
+\texttt{/var/log/messages} files collected on Linux hosts. The following
+marking scheme will be used:
+\begin{itemize}
+\item 5 points: program compiles (if relevant) and runs with the imposed syntax. 
+\item For each question (9 questions in total):
+  \begin{itemize}
+  \item 2 points: program runs to completion.
+    \begin{itemize}
+    \item Program runs to completion out of the box: 2 points.
+    \item Program runs to completion after minor fixes: 1 point.
+    \item Program runs to completion after major fixes or cannot be fixed: 0 point.
+    \end{itemize}
+  \item 2 points: program gives correct answer on testing data (\texttt{iliad} and \texttt{odyssey}).
+    \begin{itemize}
+    \item Program gives totally correct answer: 2 points.
+    \item Program gives partially correct answer (e.g. incomplete lists): 1 point.
+    \item Program gives incorrect answer: 0 point.
+    \end{itemize}
+  \item 4 points: program gives correct answer on undisclosed evaluation data.
+    \begin{itemize}
+    \item Program gives totally correct answer: 4 points.
+    \item Program gives partially correct answer: 2 points.
+    \item Program gives incorrect answer: 0 point.
+    \end{itemize}
+  \item 2 points: program uses mainly Spark operations (transformation and actions).
+    \begin{itemize}
+    \item Program uses mainly Spark operations: 2 points.
+    \item Program uses some Spark operations: 1 point. 
+    \item Program does not use Spark operations: 0 point.
+    \end{itemize}
+  \end{itemize}
+\item 5 points: Git commit history is available and shows frequent commits.
+  \begin{itemize}
+    \item Commit history is available and demonstrates frequent commits showing incremental
+      development steps: 5 points.
+    \item Commit history is available but shows only a few large commits: 2 points.
+    \item Commit history is not available: 0 point. 
+  \end{itemize}
+\end{itemize}
+Total: 100 points (5+9$\times$10+5).
+
+\end{document}
+
+
