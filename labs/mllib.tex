@@ -133,13 +133,12 @@ MLlib (Machine-Learning library) is a library in
 implementations of several algorithms seen in the lecture. In this
 session, we will run through basic examples related to clustering,
 recommendation systems and the mining of frequent itemsets. These
-examples may help you start with your project. Most of the material in
-this document is taken from the
+examples may help you start with your project. Most of the material is
+taken from the
 \href{http://spark.apache.org/docs/latest/ml-guide.html}{MLlib
-  guide}. You are encouraged to further explore this guide should you
-need more details about MLlib. The
-\href{http://spark.apache.org/docs/latest/api/python/index.html}{Pyspark
-  documentation} is the reference API documentation.  For installation
+  guide} and the \href{http://spark.apache.org/docs/latest/api/python/index.html}{Pyspark
+  documentation}. You are encouraged to further explore these references should you
+need more details about MLlib. For installation
 instructions and an introduction to Apache Spark, please refer to the
 \href{https://github.com/glatard/big-data-analytics-course/releases/download/0.8/spark.pdf}{previous
   lab session}. Warning: MLlib is still under active development and
@@ -152,10 +151,10 @@ ensured. Here we use version 2.1.0.
 This section is adapted from the
 \href{http://spark.apache.org/docs/latest/sql-programming-guide.html}{Spark
   DataFrame Guide}. In the introduction session we presented how
-Resilient Distributed Datasets are used to define parallel operations
-on datasets. MLlib uses another kind of data objects, called
-DataFrame. A DataFrame consists of named columns. It is conceptually
-equivalent to a table in a database.
+Resilient Distributed Datasets (RDDs) are used to define parallel
+operations on datasets. MLlib uses another kind of data objects,
+called DataFrame. A DataFrame consists of named columns. It is
+conceptually equivalent to a table in a database.
 
 Before using the DataFrame API, a Spark session must be created:
 \begin{cli}
@@ -163,12 +162,14 @@ Before using the DataFrame API, a Spark session must be created:
 \end{cli}
 A DataFrame can be created from an RDD or from a file. For instance,
 here is how to read a DataFrame from a
-\href{libSVM}{https://www.csie.ntu.edu.tw/~cjlin/libsvm/} file:
+\href{https://www.csie.ntu.edu.tw/~cjlin/libsvm/}{libSVM} file (in the
+remainder of this document, it is assumed that environment variable
+\texttt{SPARK\_HOME} points to your Spark installation):
 \begin{cli}
   >>> import os
   >>> spark_home = os.environ['SPARK_HOME']
   >>> dataset = spark.read.format("libsvm").load(\
-      "file://"+os.join(spark_home,"data/mllib/sample_kmeans_data.txt"))
+      "file://"+os.path.join(spark_home,"data/mllib/sample_kmeans_data.txt"))
 \end{cli}
 DataFrame objects can then be inspected and queried as a database relation:
 \begin{cli}
@@ -176,7 +177,7 @@ DataFrame objects can then be inspected and queried as a database relation:
 >>> dataset.select("label").show()
 >>> dataset.filter(dataset["label"]==1).show()
 \end{cli}
-See more details in the \href{http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame}{PySpark documentation}.
+See the \href{http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame}{PySpark documentation} for more details.
 
 \section{Clustering}
 
@@ -186,7 +187,6 @@ library is quite straightforward to use, but you should note that
 KMeans are implemented as an MLlib
 \href{http://spark.apache.org/docs/latest/api/python/pyspark.ml.html?highlight=estimator#pyspark.ml.Estimator}{Estimator}
 that fits a model to the dataset.
-
 Parameters of the \texttt{KMeans} estimator are listed as follows:
 \begin{cli}
   >>> from pyspark.ml.clustering import KMeans
@@ -205,7 +205,7 @@ The resulting model essentially contains the cluster centroids:
 Finally, a model can be applied to a dataset as follows:
 \begin{cli}
   >>> classified_dataset=model.transform(dataset)
-  >>> classsified_dataset.show()
+  >>> classified_dataset.show()
 \end{cli}
 
 The complete example is available here:
@@ -217,15 +217,16 @@ See also
 \section{Collaborative filtering}
 
 MLlib implements latent-factor-based collaborative filtering using the
-alternate least-square method. It means that you can implement a
-recommendation system with a few lines of code only.
-
-The example below, extracted from the Spark documentation, loads a
-sample of the MovieLens dataset, parses it as
+alternate least-square method. Using MLlib, you can implement a
+recommendation system with a few lines of code only.  The example
+below, extracted from the Spark documentation, loads a sample of the
+MovieLens dataset, parses it as
 \href{http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.Row}{DataFrame
-  Rows} and create a DataFrame from these Rows:
+  Rows} and creates a DataFrame from these Rows:
 \begin{cli}
   >>> from pyspark.sql import Row
+  >>> example_file_path=os.path.join(os.environ['SPARK_HOME'],\
+      "data/mllib/als/sample_movielens_ratings.txt")
   >>> lines = spark.read.text("file://"+example_file_path).rdd
   >>> parts = lines.map(lambda row: row.value.split("::"))
   >>> ratingsRDD = parts.map(lambda p: Row(userId=int(p[0]), movieId=int(p[1]),
@@ -251,9 +252,41 @@ And finally its RMSE can be evaluated on the test data:
                                 predictionCol="prediction")
   >>> rmse = evaluator.evaluate(predictions)
 \end{cli}
-
+The complete example is available in the \href{https://github.com/apache/spark/blob/master/examples/src/main/python/ml/als_example.py}{Spark documentation}.
 
 \section{Frequent itemsets mining}
+
+MLlib contains a few algorithms for frequent itemsets mining, however,
+they are currently available only in the RDD-based API which has
+entered maintenance mode since Spark 2.0. In the following code
+snippets, note the imports from \texttt{pyspark.mllib} while
+\texttt{pyspark.ml} is used in the DataFrame API. Besides, not all the
+algorithms have Python bindings.
+
+%% In the RDD API, a Spark context must first be created:
+%% \begin{cli}
+%%   >>> from pyspark import SparkContext, SparkConf
+%%   >>> conf = SparkConf().setAppName("frequent itemsets").setMaster("local")
+%%   >>> sc = SparkContext(conf=conf)
+%% \end{cli}
+Here is how to load and parse test data:
+\begin{cli}
+  >>> example_file_path=os.path.join(os.environ['SPARK_HOME'],"data/mllib/sample_fpgrowth.txt")
+  >>> data = sc.textFile("file://"+example_file_path)
+  >>> transactions = data.map(lambda line: line.strip().split(' '))
+\end{cli}
+The \href{http://dx.doi.org/10.1145/335191.335372}{FP-growth}
+algorithm is available in Python:
+\begin{cli}
+  >>> from pyspark.mllib.fpm import FPGrowth
+  >>> model  = FPGrowth.train(transactions,minSupport=0.2, numPartitions=10)
+  >>> result = model.freqItemsets().collect()
+  >>> for fi in result:
+  ...   print(fi)
+\end{cli}
+The complete example is available in the
+\href{https://github.com/apache/spark/blob/master/examples/src/main/python/mllib/fpgrowth_example.py}{Spark
+  documentation}.
 
 \end{document}
 
