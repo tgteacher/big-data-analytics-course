@@ -117,18 +117,19 @@ public class Kmeans {
      * *********
      */
     public static void usage(){
-        System.out.println("usage: Kmeans <inputPath> <baseOutputPath> <nClusters> <maxIterations> \n "
+        System.out.println("usage: Kmeans <inputPath> <baseOutputPath> <nClusters> <maxIterations> <skip>\n "
                 + "<inputPath> is the path to the data (text file) to cluster. It might be on the local "
                 + "file system or HDFS. \n <baseOutputPath> must be on HDFS.");
     }
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException, Exception {
         // Arguments parsing
-        if(args.length != 4)
+        if(args.length != 5)
             usage();
         String inputPath = args[0];
         String baseOutputPath = args[1];
         int nClusters = Integer.parseInt(args[2]);
         int maxIterations = Integer.parseInt(args[3]);
+        int skip = Integer.parseInt(args[4]);
 
         // Centroid initialization
         FileSystem fs = FileSystem.get(URI.create(inputPath), new Configuration());
@@ -141,15 +142,17 @@ public class Kmeans {
             in = fs.open(path);
             br = new BufferedReader(new InputStreamReader(in));
             String line = null;
-            for (int i = 0; i < nClusters; i++) {
-                centroids.add(br.readLine());
+            for (int i = 0; i < nClusters+skip; i++) {
+                String centroid = br.readLine();
+                if(i>=skip)
+                    centroids.add(centroid);
             }
         } finally {
             IOUtils.closeStream(in);
         }
 
         // Now we will write the centroids in a file
-        String centroidFile = baseOutputPath + "-centroids.txt";
+        String centroidFile = baseOutputPath + "-centroids-init.txt";
         fs = FileSystem.get(URI.create(centroidFile), new Configuration());
         OutputStream out = fs.create(new Path(centroidFile));
         try {
@@ -172,7 +175,7 @@ public class Kmeans {
             job.setOutputKeyClass(IntWritable.class);
             job.setOutputValueClass(Text.class);
             FileInputFormat.addInputPath(job, new Path(inputPath));
-            String outputPath = baseOutputPath + "-" + i;
+            String outputPath = baseOutputPath + "-iteration-" + i;
             // Set job output
             FileOutputFormat.setOutputPath(job, new Path(outputPath));
             // Distribute the centroid file to the mappers using the distributed cache
@@ -200,7 +203,7 @@ public class Kmeans {
         job.setOutputKeyClass(IntWritable.class);
         job.setOutputValueClass(Text.class);
         FileInputFormat.addInputPath(job, new Path(inputPath));
-        String outputPath = baseOutputPath + "-classification";
+        String outputPath = baseOutputPath + "-final-classification";
         FileOutputFormat.setOutputPath(job, new Path(outputPath));
         job.addCacheFile(new URI(centroidFile));
         if (!job.waitForCompletion(true)) // job failed
