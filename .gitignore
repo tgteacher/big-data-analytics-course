@@ -16,6 +16,10 @@ spark.pdf
 pymk.pdf
 kmeans.pdf
 *.jar
+*.log
+*.out
+*.toc
+labs/*
 intro.pdf
 mllib.pdf
 logs.pdf
