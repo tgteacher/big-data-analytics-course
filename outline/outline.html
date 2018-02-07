@@ -65,7 +65,7 @@
 	  <li>Lectures: Wednesday 5:45PM - 8:15PM at MB 3.430 SGW.</li>
 	  <li>Labs: 
 	    <ul>
-	      <li>UI (Kang): Wednesday 3:45PM - 5:35PM, room TBA</li>
+	      <li>UI (Kang): Wednesday 3:45PM - 5:35PM at H 815 SGW</li>
 	      <li>UJ (Du): Tuesday 1:15PM - 3:05PM at H 903 SGW</li>
 	    </ul>
 	  </li>
@@ -91,7 +91,7 @@
 	  details the main algorithms for the analysis of large
 	  datasets, related to similarity search, mining of frequent
 	  itemsets, graph analysis, clustering, stream mining,
-	  recommendation systems and advertising.</p>
+	  recommender systems and advertising.</p>
 
 	<p>By the end of this course, students will be able to write
 	  and deploy efficient parallel algorithms to analyze Big Data
@@ -107,19 +107,20 @@
 	<table>
 	  <tr><th>Date  </th> <th>Lecture                   </th> <th>Lab                                            </th>  <th> Assignments    </th></tr>
 	  <tr><td>Jan 10</td> <td>Introduction              </td> <td> <font color="white">None</font>              </td>  <td> <font color="white">None</font> </td></tr>
-	  <tr><td>Jan 17</td> <td>MapReduce, Hadoop, Spark (<a href="#mmdsbook">MMDS</a> Ch 2) </td> <td>Getting started with Python, Git, GitHub</td><td></td></tr>
-	  <tr><td>Jan 24</td> <td>Recommendation systems (<a href="#mmdsbook">MMDS</a> Ch 9)    </td> <td>Spark intro<br/><a href="https://github.com/glatard/bigdata-LA1">Instructions</a></td><td><strong>LA1: "Spark RDD and DataFrame APIs"</strong><br/>Due date: <strong>Jan 26, 11:55pm</strong></td> </tr>
-	  <tr><td>Jan 31</td> <td>Clustering (<a href="#mmdsbook">MMDS</a> Ch 7)               </td> <td>Recommendation systems</td><td/></tr>
-	  <tr><td>Feb 7 </td> <td>Frequent itemsets (<a href="#mmdsbook">MMDS</a> Ch 6)        </td> <td>Clustering</td><td><strong>Project proposal</strong><br/> Due date: <strong>Feb 9, 11:55pm</strong>.  </td></tr>
-	  <tr><td>Feb 14</td> <td>Data streams (<a href="#mmdsbook">MMDS</a> Ch 4) </td> <td>Frequent itemsets</td><td/></tr>
+	  <tr><td>Jan 17</td> <td>MapReduce, Hadoop (<a href="#mmdsbook">MMDS</a> Ch 2) </td> <td>Getting started with Python, Spark, Git, GitHub</td><td><ul><li>Dean J, Ghemawat S. <a href="https://drive.google.com/file/d/1HGnqnVEjRHbCW13PdVy6N5IqXdWd6iY-/view">MapReduce: simplified data processing on large clusters</a>. Communications of the ACM. 2008 Jan 1;51(1):107-13.</li></ul>
+</td></tr>
+	  <tr><td>Jan 24</td> <td>Apache Spark   </td> <td>Spark RDDs and DataFrames<br/><a href="https://github.com/glatard/bigdata-LA1">Instructions (ask your TA for access)</a></td><td><ul><li>Zaharia M, Xin RS, Wendell P, Das T, Armbrust M, Dave A, Meng X, Rosen J, Venkataraman S, Franklin MJ, Ghodsi A. <a href="http://homepages.cs.ncl.ac.uk/paolo.missier/doc/p56-zaharia.pdf">Apache Spark: A unified engine for big data processing</a>. Communications of the ACM. 2016 Oct 28;59(11):56-65.</li></ul></td> </tr>
+	  <tr><td>Jan 31</td> <td>Recommender systems (<a href="#mmdsbook">MMDS</a> Ch 9)</td> <td>RDDs and DataFrames (continued)</td><td><strong>LA1: "Spark RDD and DataFrame APIs"</strong><br/>Due date: <strong>Feb 2, 11:55pm</strong></td></tr>
+	  <tr><td>Feb 7 </td> <td>Clustering (<a href="#mmdsbook">MMDS</a> Ch 7)       </td> <td>Recommender systems<br/><a href="https://github.com/glatard/bigdata-LA2">Instructions (ask your TA for access)</a></td><td><strong>Project proposal</strong><br/> Due date: <strong>Feb 9, 11:55pm</strong>.  </td></tr>
+	  <tr><td>Feb 14</td> <td>Frequent itemsets (<a href="#mmdsbook">MMDS</a> Ch 6)  </td> <td>Clustering</td><td/></tr>
           <tr><td colspan="4"><center><font color="white">Spring break</font></center></td></tr>
-          <tr><td>Feb 28</td> <td>Similarity search (<a href="#mmdsbook">MMDS</a> Ch 3)</td><td>Data streams</td><td><strong>LA2: "Recommendation systems, clustering and frequent itemsets in Spark"</strong><br/>Due date: <strong>Mar 2, 11:55pm</strong></td></tr>
-          <tr><td>Mar 7</td>  <td>Graph analysis  (<a href="#mmdsbook">MMDS</a> Ch 5 &amp; 10)</td><td>Similarity search</td><td></td></tr>
-          <tr><td>Mar 14</td> <td>Advertising on the Web (<a href="#mmdsbook">MMDS</a> Ch 8) </td> <td>Graph analysis </td><td/></tr>
-	  <tr><td>Mar 21</td> <td>Introduction to Machine Learning (<a href="#mmdsbook">MMDS</a> Ch 12)</td> <td>Advertising</td><td><strong>LA3: "Stream mining, similarity search and graph analysis in Spark"</strong><br/>Due date: <strong>Mar 23, 11:55pm</strong></td></tr>
+          <tr><td>Feb 28</td> <td>Data streams (<a href="#mmdsbook">MMDS</a> Ch 4)</td><td>Frequent itemsets</td><td/></tr>
+          <tr><td>Mar 7</td>  <td>Similarity search (<a href="#mmdsbook">MMDS</a> Ch 3)</td><td>Data streams</td><td><strong>LA2: "Recommender systems, clustering and frequent itemsets in Spark"</strong><br/>Due date: <strong>Mar 9, 11:55pm</strong></td></tr>
+          <tr><td>Mar 14</td> <td>Graph analysis  (<a href="#mmdsbook">MMDS</a> Ch 5 &amp; 10)</td> <td>Similarity search</td><td/></tr>
+	  <tr><td>Mar 21</td> <td>Advertising on the Web (<a href="#mmdsbook">MMDS</a> Ch 8)</td> <td>Graph analysis</td><td/></tr>
           <tr><td>Mar 28</td> <td><strong>Exam</strong>                  </td> <td><font color="white">None</font> </td><td><font color="white">None</font></td></tr>
-          <tr><td>Apr 4 </td> <td><strong>Project presentations</strong>                   </td> <td>Machine learning </td><td/></tr>
-          <tr><td>Apr 11 </td><td><strong>Project presentations</strong></td> <td>TBA</td><td><strong>LA4: "Advertising and Machine Learning in Spark"</strong><br/>Due date: <strong>Apr 13, 11:55pm</strong><br/><br/><strong>Project report</strong><br/>Due date: <strong>Apr 13, 11:55pm</strong></td></tr>
+          <tr><td>Apr 4 </td> <td><strong>Project presentations</strong>                   </td> <td>Advertising</td><td><strong>LA3: "Stream mining, similarity search and graph analysis in Spark"</strong><br/>Due date: <strong>Apr 6, 11:55pm</strong></td></tr>
+          <tr><td>Apr 11 </td><td><strong>Project presentations</strong></td> <td>TBA</td><td><strong>LA4: "Advertising with Spark"</strong><br/>Due date: <strong>Apr 13, 11:55pm</strong><br/><br/><strong>Project report</strong><br/>Due date: <strong>Apr 20, 11:55pm</strong></td></tr>
 </table>
 <p>
   <strong>Please note</strong>: In the event of extraordinary circumstances beyond the University's control, the content
