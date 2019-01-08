@@ -23,7 +23,7 @@ output_file_name=sys.argv[3]
 points=sc.textFile(file_name).map(lambda x: x.split(" ")).\
         map(lambda (x,y): (float(x), float(y)))
 
-clusters = KMeans.train(points, k, maxIterations=100, initializationMode="kmeans||")
+clusters = KMeans.train(points, k, maxIterations=100, initializationMode="random")
 
 points.map(lambda x: "{0} {1} {2}".format(clusters.predict(x), x[0], x[1])).\
     saveAsTextFile(output_file_name)
