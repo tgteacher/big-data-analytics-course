@@ -9,9 +9,6 @@
     <link rel="stylesheet" href="stylesheets/github-light.css">
     <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
   </head>
   <body>
     <div class="wrapper">
@@ -30,7 +27,7 @@
     </header>
     <section>
         <h1>Course Outline, Winter 2020<br/>
-            Big Data Analytics <br/> SOEN 691-UU / SOEN 499-UU
+            Big Data Analytics <br/> SOEN 471 / SOEN 6111
         </h1>
         <h2>
             <a id="instructors" class="anchor"
@@ -40,9 +37,8 @@
             Instructors
         </h2>
             <p><strong>Coordinator:</strong> Dr. Tristan Glatard<br/>
-            Office: EV 6.225<br/>
             e-mail: <a href="mailto:tristan.glatard@concordia.ca">tristan.glatard@concordia.ca</a><br/>
-            Regular office hours: Monday 4pm - 5pm or by appointment. A Zoom link will be posted on Slack.<br/>
+            Regular (online) office hours: Tuesday 4pm - 5pm or by appointment. A Zoom link will be posted on Moodle.<br/>
             </p>
             <p>
             <strong>Teaching Assistants:</strong>
@@ -53,9 +49,6 @@
                 <li>Martin Khannouz<br/>
                 e-mail: <a href="mailto:martin.khannouz@gmail.com">martin.khannouz@gmail.com</a>
                 </li>
-                <li>Antoine Hébert<br/>
-                  e-mail: <a href="mailto:an_heb@encs.concordia.ca">an_heb@encs.concordia.ca</a>
-                  </li>
             </ul>
             </p>
         <h2>
@@ -63,22 +56,22 @@
              href="#lectures" aria-hidden="true">
             <span aria-hidden="true" class="octicon octicon-link"/>
           </a>
-            Lectures &amp; Labs
+        Lectures &amp; Labs
         </h2>
         <ul>
-            <li>Lectures: Wednesday 5:45PM - 8:15PM at MB1.210 SGW.</li>
+            <li>Lectures: Wednesday 5:45PM - 8:15PM.</li>
             <li>Labs: 
               <ul>
-	        <li>UUIA (V. Hayot-Sasson): We 3:45PM - 5:35PM -- H 811 SGW</li>
-	        <li>UUIB (M. Khannouz): We 3:45PM - 5:35PM -- H 843 SGW </li>
-	        <li>UUIC (A. Hébert): We 3:45PM - 5:35PM -- H 837 SGW</li>
-          <li>UUJD (V. Hayot-Sasson): We 8:30PM - 10:20PM -- H 843 SGW</li>
-		<li>UUJE (M. Khannouz): We 8:30PM - 10:20PM -- H 847 SGW </li>
-		<li>UUJF (A. Hébert): We 8:30PM - 10:20PM -- H 845 SGW</li>
+          <li>SOEN 471 -- UUIX (V. Hayot-Sasson): We 3:45PM - 5:35PM</li>
+          <li>SOEN 6111 -- UUIX (M. Khannouz): We 3:45PM - 5:35PM</li>
+          <li>SOEN 471 -- UUJX (M. Khannouz): We 8:30PM - 10:20PM</li>
+          <li>SOEN 6111 -- UUJX (V. Hayot-Sasson): We 8:30PM - 10:20PM</li>
               </ul>
             </li>
         </ul>
-        <p><a href="https://moodle.concordia.ca/moodle/course/view.php?id=124458" target="_blank" >Moodle page</a></p>
+        <p>Zoom links will be posted on Moodle.
+        </p>
+        <p><a href="https://moodle.concordia.ca/moodle/course/view.php?id=131800" target="_blank" >Moodle page</a></p>
         <h2>
             <a id="objectives" class="anchor"
                 href="#objectives" aria-hidden="true">
@@ -115,8 +108,8 @@
     Important information will be communicated through Moodle and/or Slack.
     Students are expected to consult these channels regularly.
     <ul>
-        <li><a href="https://moodle.concordia.ca/moodle/course/view.php?id=124458">Moodle page</a></li>
-        <li><a href="https://tgteacher.slack.com/messages">Slack workspace</a> (join channel #bigdata--winter2020)</li>
+        <li><a href="https://moodle.concordia.ca/moodle/course/view.php?id=131800">Moodle page</a></li>
+        <li><a href="https://tgteacher.slack.com/messages">Slack workspace</a> (join channel #bigdata--winter2021)</li>
     </ul>
     Students are also encouraged to communicate about course topics between
     themselves, with their TAs, and with the professor. Frequent
@@ -132,7 +125,7 @@
       <li>Use Slack's thread feature to follow-up on a question instead of
       posting replies to the main channel.</li>
       <li>Don't hesitate to chime in a discussion if you think you might help.</li>
-      <li>Always use the public channel (#bigdata--winter2020) to ask your
+      <li>Always use the public channel (#bigdata--winter2021) to ask your
       questions. In particular, never exchange private messages with your
       TA. If any personal matter has to be discussed, communicate with the
       professor. If you really need to send a non-public message to your
@@ -143,7 +136,7 @@
     reasonable load on the instructors.
   </p>
   <p>
-    In addition, the instructors are dedicated to providing a
+    The instructors are dedicated to providing a
     harassment-free experience for everyone, regardless of gender, gender
     identity and expression, sexual orientation, disability, physical
     appearance, body size, race, age or religion. We do not tolerate
@@ -161,31 +154,32 @@
         Schedule
         </h2>
     <table>
-        <tr><th>Date  </th> <th>Lecture                   </th> <th>Lab                                        </th>  <th> Readings  </th> <th>Assignments</th></tr>
-        <tr><td>Jan 8</td> <td>Introduction               </td> <td> <font color="white">None</font>           </td>  <td> <font color="white">None</font> </td><td><font color="white">None</font></td></tr>
-        <tr><td>Jan 15</td> <td>Data locality (Hadoop MapReduce and HDFS)  </td> <td> Git, GitHub, Travis-CI, Python, pytest.   </td>  <td> <ul>
+        <tr><th>Date</th> <th>Lecture                   </th> <th>Lab                                        </th>  <th> Readings  </th> <th>Assignments</th></tr>
+        <tr><td>Jan 13</td> <td>Introduction               </td> <td> <font color="white">None</font>           </td>  <td> <font color="white">None</font> </td><td><font color="white">None</font></td></tr>
+        <tr><td>Jan 20</td> <td>Data locality (Hadoop MapReduce and HDFS)  </td> <td> Git, GitHub, Travis-CI, Python, pytest.   </td>  <td> <ul>
                                                                                                                                 <li>Dean J, Ghemawat S. <a href="https://drive.google.com/file/d/1HGnqnVEjRHbCW13PdVy6N5IqXdWd6iY-/view">MapReduce: simplified data processing on large clusters</a>. Communications of the ACM. 2008 Jan 1;51(1):107-13.</li>
                                                                                                                                 <li>Shvachko, Konstantin, et al. <a href="http://pages.cs.wisc.edu/~akella/CS744/F17/838-CloudPapers/hdfs.pdf">The Hadoop Distributed File System.</a> IEEE 26th symposium on Mass storage systems and technologies (MSST), 2010. </li>
                                                                                                                             </ul>
                                                                                                                             </td><td><font color="white">None</font></td></tr>
                                                                                                                                 
-        <tr><td>Jan 22</td> <td>In-memory computing and lazy evaluation (Apache Spark, Dask)        </td> <td> Spark RDDs and DataFrames, intro to LA1.  </td>  <td> <ul>
+        <tr><td>Jan 27</td> <td>In-memory computing and lazy evaluation (Apache Spark, Dask)        </td> <td> Spark RDDs and DataFrames, intro to LA1.  </td>  <td> <ul>
                                                                                                                                 <li>Zaharia M, Xin RS, Wendell P, Das T, Armbrust M, Dave A, Meng X, Rosen J, Venkataraman S, Franklin MJ, Ghodsi A. <a href="http://homepages.cs.ncl.ac.uk/paolo.missier/doc/p56-zaharia.pdf">Apache Spark: A unified engine for big data processing</a>. Communications of the ACM. 2016 Oct 28;59(11):56-65.</li>
                                                                                                                                 <li>Rocklin, Matthew. <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.825.5314&rep=rep1&type=pdf">Dask: Parallel computation with blocked algorithms and task scheduling.</a> Proceedings of the 14th Python in Science Conference. No. 130-136. 2015.</li>
-                                                                                                                           </ul></td><td><strong>Project teams (3 members) must be registered by Jan 24, 11:55pm</strong><br/><a href="https://forms.gle/pjL1rPgW9gM72DFS6">Registration link</a></td></tr>
-        <tr><td>Jan 29</td> <td>Supervised Learning </td> <td>Dask</td>  <td>  <ul><li>Sections 1, 2, 3.1, 5.1, 6, 8, 9 in Kotsiantis, Sotiris B., I. Zaharakis, and P. Pintelas. <a href="http://www.informatica.si/index.php/informatica/article/viewFile/148/140">Supervised machine learning: A review of classification techniques.</a> Emerging artificial intelligence applications in computer engineering 160 (2007): 3-24. </li></ul></td>  <td><strong>Project GitHub repositories must be created by Jan 31st, 11:55pm</strong>. <br/><a href="https://forms.gle/E3bRjEcLQTieiCii9">Registration link</a>.</td></tr>
-        <tr><td>Feb 5 </td> <td>Recommender Systems </td> <td>scikit-learn</td>  <td>  <ul><li><a href="#mmdsbook">MMDS</a> Ch 9</li></ul></td>  <td><strong>LA1: "Spark RDD and DataFrame APIs, Dask"</strong><br/>Due date: <strong>Feb 7, 11:55pm</strong><br/><a href="https://classroom.github.com/a/5klkOEFn">Assignment link</a></td></tr>
-        <tr><td>Feb 12</td>  <td>Clustering    </td><td><ul><li>Introduction to LA2</li><li>Project clinic (project definition, method, dataset)</li></ul></td>  <td><ul><li><a href="#mmdsbook">MMDS</a> Ch 7</li></ul></div></td> <td><strong>Project proposal</strong><br/> Due date: <strong>Feb 14, 11:55pm</strong>.</ul></td></tr>
-        <tr><td>Feb 19</td> <td>Frequent Itemsets </td>  <td>Introduction to LA3</td> <td><ul><li><a href="#mmdsbook">MMDS</a> Ch 6</li></ul></td><td><strong>LA2: "Recommender systems in Spark"</strong><br/>Due date: <strong>Feb 21, 11:55pm</strong><br/><a href="https://classroom.github.com/a/NGfmG_D1">Assignment link</a>.</td></tr>
+                                                                                                                           </ul></td><td><strong>Project teams (2 members) must be registered by Jan 29, 11:55pm</strong><br/><a href="https://forms.gle/8Ma7WBFHMbE9mrh57">Registration link</a></td></tr>
+        <tr><td>Feb 3</td> <td>Supervised Learning </td> <td>Dask</td>  <td>  <ul><li>Sections 1, 2, 3.1, 5.1, 6, 8, 9 in Kotsiantis, Sotiris B., I. Zaharakis, and P. Pintelas. <a href="http://www.informatica.si/index.php/informatica/article/viewFile/148/140">Supervised machine learning: A review of classification techniques.</a> Emerging artificial intelligence applications in computer engineering 160 (2007): 3-24. </li></ul></td>  <td><strong>Project GitHub repositories must be created by Feb 5, 11:55pm</strong>. <br/><a href="https://forms.gle/qmMvs74W21LEDjwz8">Registration link</a>.</td></tr>
+        <tr><td>Feb 10 </td> <td>Recommender Systems </td> <td>scikit-learn</td>  <td>  <ul><li><a href="#mmdsbook">MMDS</a> Ch 9</li></ul></td>  <td><strong>LA1: "Spark RDD and DataFrame APIs, Dask"</strong><br/>Due date: <strong>Feb 12, 11:55pm</strong><br/></td></tr>
+        <tr><td>Feb 17</td>  <td>Clustering    </td><td><ul><li>Introduction to LA2</li><li>Project clinic (project definition, method, dataset)</li></ul></td>  <td><ul><li><a href="#mmdsbook">MMDS</a> Ch 7</li></ul></div></td> <td><strong>Project proposal</strong><br/> Due date: <strong>Feb 19, 11:55pm</strong></ul></td></tr>
+        <tr><td>Feb 24</td> <td>Frequent Itemsets </td>  <td>Introduction to LA3</td> <td><ul><li><a href="#mmdsbook">MMDS</a> Ch 6</li></ul></td><td><strong>LA2</strong><br/>Due date: <strong>Feb 26, 11:55pm</strong><br/></td></tr>
 
         <tr><td colspan="5"><center><font color="white">Mid-term break</font></center></td></tr>
-       <tr><td>Mar 4</td> <td><strong>Midterm exam</strong> </td><td><font color="white">None</font></td><td><font color="white">None</font></td><td><font color="white">None</font></td></tr>
-        <tr><td>Mar 11</td> <td>Similarity Search  </td>  <td>Introduction to LA4</td>  <td><ul><li><a href="#mmdsbook">MMDS</a> Ch 3</li></ul></td><td><font color="white">None</font></td></tr>
-        <tr><td>Mar 18</td> <td colspan="4"><center>Cancelled due to COVID-10                 </center> </td> </tr>
-        <tr><td>Mar 25 </td> <td>Data Streams                   </td> <td>LA4 and Project clinic (debugging, results discussion)</td><td><ul><li><a href="#mmdsbook">MMDS</a> Ch 4</li></ul></td><td><font color="white">None</font></td></tr>  
-        <tr><td>Apr 1 </td> <td> Graph Analysis </td> <td>Research Presentations</td><td><ul><li><a href="#mmdsbook">MMDS</a> Ch 5</li></ul></td><td><strong>LA3: "Frequent Itemsets and Clustering"</strong><br/>Due date: <strong>Apr 3, 11:55pm</strong><br/><a href="https://classroom.github.com/a/6eEPz5Nt">Assignment link</a></td></tr>
-        <tr><td>Apr 8 </td><center><td colspan="2"><strong>Project presentations</strong></center></td> <td><font color="white">None</font></td><td><strong>Project report</strong><br/>Due date: <strong>Apr 10, 11:55pm</strong><br/><br/> <strong>LA4: "Similarity Search"</strong><br/>Due date: <strong>Apr 10, 11:55pm</strong><br/><a href="https://classroom.github.com/a/xkgJfvea">Assignment link</a></td></tr>
-        <tr><td><strong>Apr 22, 19:00-22:00</strong></td><td colspan ="4"><center><strong>Final Exam</strong></center></td></tr>
+       <tr><td>Mar 10</td> <td><strong>Midterm exam</strong> </td><td><font color="white">None</font></td><td><font color="white">None</font></td><td><font color="white">None</font></td></tr>
+        <tr><td>Mar 17</td> <td>Similarity Search  </td>  <td>Introduction to LA4</td>  <td><ul><li><a href="#mmdsbook">MMDS</a> Ch 3</li></ul></td><td><font color="white">None</font></td></tr>
+        <tr><td>Mar 24 </td> <td>Data Streams                   </td> <td>LA4</td><td><ul><li><a href="#mmdsbook">MMDS</a> Ch 4</li></ul></td><td><strong>LA3</strong><br/>Due date: <strong>Apr 2, 11:55pm</strong></td></tr>  
+        <tr><td>Mar 31 </td> <td> Graph Analysis </td> <td>Project clinic (debugging, results discussion)</td><td><ul><li><a href="#mmdsbook">MMDS</a> Ch 5</li></ul></td><td><font color="white">None</font></td></tr>
+        <tr><td>Apr 7 </td><td><strong>Project presentations (I)</strong></td><td>Research presentations</td> <td><font color="white">None</font></td><td><strong>LA4</strong><br/>Due date: <strong>Apr 9, 11:55pm</strong></td></tr>
+        <tr><td>Apr 14 </td><td><strong>Project presentations (II)</strong></td> <td><font color="white">None</font></td><td><font color="white">None</font></td><td><strong>Project report</strong><br/>Due date: <strong>Apr 16, 11:55pm</strong></td></tr>
+        <tr><td><strong>Date TBA</strong></td><td colspan ="4"><center><strong>Final Exam</strong></center></td></tr>
+
     </table>
 <p>
   <strong>Please note</strong>: In the event of extraordinary circumstances beyond the University's control, the content
@@ -228,13 +222,9 @@ website also has useful videos explaining the slides.
     </p>
     <p>
       <strong>Exams (40%)</strong>: There will be a mid-term and a 
-      final exam. Exams will be closed-book. The midterm will be 
+      final exam. Exams will be Moodle quizzes. The midterm will be 
       conducted in-class and will count for 10% of the final grade. The 
-      final exam will count for 30% of the final grade. However, if the 
-      result of the final exam is better than the result of the 
-      mid-term (as a percentage out of 100) then the weight of the 
-      mid-term will be shifted to the final exam. In general, you will 
-      need to bring your own ENCS calculator. There will be no 
+      final exam will count for 30% of the final grade. There will be no 
       substitution for a missed exam. 
     </p>
     <p>
@@ -261,13 +251,13 @@ website also has useful videos explaining the slides.
       (relevant) projects are welcome and can be discussed with the 
       instructor during office hours or on 
       Slack, or with the TAs during the lab sessions.  You have to work 
-      on the project in <strong>teams of 3</strong>. The project has to involve substantial software development, released on GitHub.
+      on the project in <strong>teams of 2</strong>. The project has to involve substantial software development, released on GitHub.
        The project will 
       have the following milestones. Deadlines are indicated on
       the <a href="#schedule">schedule</a>. No deadline extension
       will be granted.
       <ol>
-          <li>The <strong>project registration (1%)</strong> will simply declare the team of 3 students that will work on the project. No team
+          <li>The <strong>project registration (1%)</strong> will simply declare the team of 2 students that will work on the project. No team
           update will be accepted after the registration.</li>
           <li>The <strong>project GitHub repository (1%)</strong> will be a
           public or private GitHub repository containing the software,
@@ -324,9 +314,7 @@ website also has useful videos explaining the slides.
           Expect 1 or 2 questions after your presentation.  All criteria will be assessed on a 4-level scale: unacceptable, average, good, excellent. </li>
       </ol>
     </p>
-    <p><strong>Grading Scheme</strong>: A passing mark on each of the 3
-      deliverables (lab assignments, exam and
-      project) is required to get a passing grade for the course.  There
+    <p><strong>Grading Scheme</strong>: There
       is no standard relationship between percentages and letter grades
       assigned. The grading of the course will be done based on the relative
       percentages assigned to the assignments, project and the exam. There is no
